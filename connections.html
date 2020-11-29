@@ -26,10 +26,10 @@
 
         <title>Connect&nbsp;4 Solver</title>
 
-        <script src="jquery-2.1.3.min.js"></script>
         <!--
-        <script src="jquery-3.5.1.js"></script>
+        <script src="jquery-2.1.3.min.js"></script>
         -->
+        <script src="jquery-3.5.1.js"></script>
 
         <style>
             body {
@@ -128,6 +128,7 @@
             #player_2 {top:50%;}
 
 
+            /*
             div.col0 {left:0%;}
             div.col1 {left:14.285714286%;}
             div.col2 {left:28.571428571%;}
@@ -135,6 +136,7 @@
             div.col4 {left:57.142857143%;}
             div.col5 {left:71.428571429%;}
             div.col6 {left:85.714285714%;}
+            */
 
             .button {
               position: absolute;
@@ -284,13 +286,33 @@
               background-image:url(board.svg);
               background-size: 100% 100%;
               background-repeat: no-repeat;
-              height:14.285714286%;
-              width:14.285714286%;
+              height:calc(100% / 11);
+              width:calc(100% / 11);
+              z-index:2;
+            }
+
+            .board_pin_red {
+              /*background-image:url(board.svg); TBD MGouin*/
+              background-color: red;
+              background-size: 100% 100%;
+              background-repeat: no-repeat;
+              height:calc(100% / 11);
+              width:calc(100% / 11);
+              z-index:2;
+            }
+
+            .board_pin_white {
+              /*background-image:url(board.svg); TBD MGouin*/
+              background-color: white;
+              background-size: 100% 100%;
+              background-repeat: no-repeat;
+              height:calc(100% / 11);
+              width:calc(100% / 11);
               z-index:2;
             }
 
             .solution {
-              width: 14.285714286%;
+              width: calc(100% / 7);
               height: 2em;
               line-height: 2em;
               background-image:none;
@@ -301,8 +323,8 @@
 
             .win {
               background-image:url(win.png);
-              width:14.285714286%;
-              height:14.285714286%;
+              width:calc(100% / 7);
+              height:calc(100% / 7);
               background-size: 100% 100%;
               background-repeat: no-repeat;
               z-index:1;
@@ -310,16 +332,16 @@
 
             .player1 {
               background-image:url(red.svg);
-              width:14.285714286%;
-              height:14.285714286%;
+              width:calc(100% / 7);
+              height:calc(100% / 7);
               background-size: 100% 100%;
               background-repeat: no-repeat;
               z-index:0;
             }
             .player2 {
               background-image:url(yellow.svg);
-              width:14.285714286%;
-              height:14.285714286%;
+              width:calc(100% / 7);
+              height:calc(100% / 7);
               background-size: 100% 100%;
               background-repeat: no-repeat;
               z-index:0;
@@ -373,11 +395,12 @@
               print_solution();
             }
 
-            function click_handler(col) {
+            function click_handler(row, col) {
               return function () {
+                  return; // TBD MGouin
                 if(canplay(col)) {
                   play(col);
-                  ga('send', 'event', 'game', 'game_play');
+                  //ga('send', 'event', 'game', 'game_play');
                 }
               };
             }
@@ -417,7 +440,6 @@
                   mark[i].show();
                 }
             }
-
 
             function win() {
               var x = moves[moves.length - 1];
@@ -604,17 +626,34 @@
                 print_solution();
                 history.replaceState(null, null, get_pos_param());
               }
-              ga('send', 'event', 'game', 'game_reset');
+              //ga('send', 'event', 'game', 'game_reset');
+            }
+
+            function isOdd(x) {
+                return x % 2 != 0;
+            }
+
+            function isEven(x) {
+                return !isOdd(x);
+            }
+
+            function getPositionType(row, col) {
+                if (isOdd(row) && isEven(col))
+                    return "board_pin_red";
+                if (isEven(row) && isOdd(col))
+                    return "board_pin_white";
+                return "board";
             }
 
             function init() {
-              for (var x = 0; x < 7; x++) {
-                for (var y = 0; y < 6; y++) {
+              for (var i = 0; i < NB_ROW; i++) {
+                for (var j = 0; j < NB_COL; j++) {
                   var v = $("<div/>");
-                  v.addClass("board");
-                  v.css("left", (x*100/7)+'%');
-                  v.css("top",  ((5-y)*100/7)+'%');
-                  v.click(click_handler(x));
+                  //v.addClass("board");
+                  v.addClass(getPositionType(i, j));
+                  v.css("left", (j * 100 / NB_COL) + '%');
+                  v.css("top",  ((NB_ROW - 1 - i) * 100 / Math.max(NB_ROW, NB_COL)) + '%');
+                  v.click(click_handler(i, j));
                   v.appendTo("#board");
                 }
               }
@@ -654,14 +693,10 @@
             }
 
             function about() {
-              if($("#about_div").is(":visible")) ga('send', 'event', 'about', 'about_hide');
-              else ga('send', 'event', 'about', 'about_show');
               $("#about_div").fadeToggle();
             }
 
             function toggle_solution() {
-              if($("#hide_solution_div").is(":visible")) ga('send', 'event', 'solution', 'solution_show');
-              else ga('send', 'event', 'solution', 'solution_hide');
               $("#hide_solution_div").fadeToggle();
             }
 
@@ -669,7 +704,6 @@
               if(player_1_auto) {
                 $("#player_1").text("manual");
                 player_1_auto = false;
-                ga('send', 'event', 'autoplay', 'autoplay_off');
               }
               else {
                 $("#player_1").text("auto");
@@ -677,7 +711,6 @@
                 player_1_auto = true;
                 player_2_auto = false;
                 print_solution();
-                ga('send', 'event', 'autoplay', 'autoplay_on');
               }
             }
 
@@ -685,7 +718,6 @@
               if(player_2_auto) {
                 $("#player_2").text("manual");
                 player_2_auto = false;
-                ga('send', 'event', 'autoplay', 'autoplay_off');
               }
               else {
                 $("#player_2").text("auto");
@@ -693,11 +725,11 @@
                 player_2_auto = true;
                 player_1_auto = false;
                 print_solution();
-                ga('send', 'event', 'autoplay', 'autoplay_on');
               }
             }
 
-            $(window).load(function(){init();});
+            //$(window).load(function(){init();});
+            $(window).on('load', function(){init();});
 
             //]]>
         </script>
