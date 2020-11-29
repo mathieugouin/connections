@@ -5,7 +5,7 @@
 
         <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no">
 
-        <meta property="og:title" content="Connect 4 Solver">
+        <meta property="og:title" content="Connection Game">
         <meta property="og:url" content="https://connect4.gamesolver.org/en/">
         <meta property="og:site_name" content="Game Solver">
         <meta property="og:image" content="https://connect4.gamesolver.org/image?pos=44433436266">
@@ -24,11 +24,8 @@
 
         <link rel="alternate" hreflang="x-default" href="https://connect4.gamesolver.org/">
 
-        <title>Connect&nbsp;4 Solver</title>
+        <title>Connections</title>
 
-        <!--
-        <script src="jquery-2.1.3.min.js"></script>
-        -->
         <script src="jquery-3.5.1.js"></script>
 
         <style>
@@ -496,14 +493,12 @@
                 var message = "[1] won".replace("[1]", player);
                 $("#solution_header").text(message);
                 $(".solution").text("").css("background-image","none");
-                ga('send', 'event', 'game', 'game_end');
                 return;
               }
               if(moves.length == 42) {
                 var message = "Draw game";
                 $("#solution_header").text(message);
                 $(".solution").text("").css("background-image","none");
-                ga('send', 'event', 'game', 'game_end');
                 return;
               }
 
@@ -615,7 +610,6 @@
               else if(auto_play()) {
                 print_solution();
               }
-              ga('send', 'event', 'game', 'game_back');
             }
 
             function query_param(key) {
@@ -626,18 +620,18 @@
             function reset() {
               if(moves.length > 0) {
                 moves = [];
-                for(var i =0; i < 7; i++) {
-                  height[i] = 0;
-                  for(var j =0; j < 6; j++) board[i][j] = 0;
+                for (var i = 0; i < NB_ROW; i++) {
+                  for (var j = 0; j < NB_COL; j++) {
+                    board[i][j] = 0;
+                  }
                 }
                 won = false;
-                $(".win").hide();
+                // $(".win").hide();
                 $(".player1").hide();
                 $(".player2").hide();
-                print_solution();
+                //print_solution();
                 //history.replaceState(null, null, get_pos_param());
               }
-              //ga('send', 'event', 'game', 'game_reset');
             }
 
             function isOdd(x) {
@@ -751,8 +745,13 @@
     <body>
         <div id="container">
             <div id="nav" class="ui-widget">
-                <div id="title"><h1>Connect&nbsp;4 Solver</h1></div>
-                <div id="description">Optimal solution of a Connect&nbsp;4 game:<ul><li>find the best move</li><li>play against an unbeatable A.I.</li></ul></div>
+                <div id="title"><h1>Connections</h1></div>
+                <div id="description">2 ways to win:
+                    <ul>
+                        <li>Surround the opposing colour with your chips</li>
+                        <li>Build a line of your colour end to end of the grid</li>
+                    </ul>
+                </div>
 
                 <div id="button_div">
                     <!-- TBD MGouin: 
