@@ -347,6 +347,39 @@
               z-index:0;
             }
 
+            .player1h {
+              background-image:url(red_h.svg);
+              width:calc(100% / 11);
+              height:calc(100% / 11);
+              background-size: 100% 100%;
+              background-repeat: no-repeat;
+              z-index:0;
+            }
+            .player1v {
+              background-image:url(red_v.svg);
+              width:calc(100% / 11);
+              height:calc(100% / 11);
+              background-size: 100% 100%;
+              background-repeat: no-repeat;
+              z-index:0;
+            }
+            .player2h {
+              background-image:url(white_h.svg);
+              width:calc(100% / 11);
+              height:calc(100% / 11);
+              background-size: 100% 100%;
+              background-repeat: no-repeat;
+              z-index:0;
+            }
+            .player2v {
+              background-image:url(white_v.svg);
+              width:calc(100% / 11);
+              height:calc(100% / 11);
+              background-size: 100% 100%;
+              background-repeat: no-repeat;
+              z-index:0;
+            }
+
         </style>
 
         <script type="text/javascript">
@@ -356,7 +389,9 @@
             var NB_ROW = 11;
             var NB_COL = 11;
 
-            var stone = [];
+            //var stone = [];
+            var stone_h = []; // horizontal
+            var stone_v = []; // vertical
             var mark = [];
             var height = [0, 0, 0, 0, 0, 0, 0];
             var moves = [];
@@ -391,7 +426,13 @@
 
             function play(row, col) {
               board[row][col] = 1 + moves.length % 2;
-              drop(stone[moves.length], row, col);
+              if (isEven(row) && isEven(col) && isEven(moves.length) ||
+                  isOdd(row) && isOdd(col) && isOdd(moves.length)) {
+                drop(stone_v[moves.length], row, col);
+              } else {
+                drop(stone_h[moves.length], row, col);
+              }
+
               //height[col]++;
               moves.push(1000 * row + col);
               //win();
@@ -666,11 +707,20 @@
 
               for (var i = 0; i < Math.ceil((NB_ROW * NB_COL) / 2); i++) {
                 var v = $("<div/>");
-                if (i % 2 === 0) v.addClass("player1");
-                else v.addClass("player2");
+                if (i % 2 === 0) v.addClass("player1h");
+                else v.addClass("player2h");
                 v.hide();
                 v.appendTo("#board");
-                stone[i] = v;
+                stone_h[i] = v;
+              }
+
+              for (var i = 0; i < Math.ceil((NB_ROW * NB_COL) / 2); i++) {
+                var v = $("<div/>");
+                if (i % 2 === 0) v.addClass("player1v");
+                else v.addClass("player2v");
+                v.hide();
+                v.appendTo("#board");
+                stone_v[i] = v;
               }
 
               /*
@@ -735,7 +785,6 @@
               }
             }
 
-            //$(window).load(function(){init();});
             $(window).on('load', function(){init();});
 
             //]]>
