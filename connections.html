@@ -335,16 +335,16 @@
 
             .player1 {
               background-image:url(red.svg);
-              width:calc(100% / 7);
-              height:calc(100% / 7);
+              width:calc(100% / 11);
+              height:calc(100% / 11);
               background-size: 100% 100%;
               background-repeat: no-repeat;
               z-index:0;
             }
             .player2 {
-              background-image:url(yellow.svg);
-              width:calc(100% / 7);
-              height:calc(100% / 7);
+              background-image:url(white.svg);
+              width:calc(100% / 11);
+              height:calc(100% / 11);
               background-size: 100% 100%;
               background-repeat: no-repeat;
               z-index:0;
@@ -365,13 +365,19 @@
             var moves = [];
             var solutions = [];
             var board = [
-              [0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0]];
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              ];
+
             var won = false;
             var player_1_auto = false;
             var player_2_auto = false;
@@ -382,29 +388,28 @@
               else return player_1_auto;
             }
 
-            function canplay(col) {
-              if(auto_play()) return false;
-              return !won && height[col] < 6;
+            function canplay(row, col) {
+              return board[row][col] == 0;
             }
 
-            function play(col, dont_compute) {
-              board[col][height[col]] = 1 + moves.length % 2;
-              drop(stone[moves.length], col, height[col]);
-              height[col]++;
-              moves.push(col);
-              win();
-              window.history.replaceState(null, null, get_pos_param());
-              if(dont_compute) return;
-              print_solution();
+            function play(row, col) {
+              board[row][col] = 1 + moves.length % 2;
+              drop(stone[moves.length], row, col);
+              //height[col]++;
+              moves.push(1000 * row + col);
+              //win();
+              //window.history.replaceState(null, null, get_pos_param());
+              //if(dont_compute) return;
+              //print_solution();
             }
 
             function click_handler(row, col) {
               return function () {
-                  console.info("click on " + row + " " + col);
-                  return; // TBD MGouin
-                if(canplay(col)) {
-                  play(col);
-                  //ga('send', 'event', 'game', 'game_play');
+                console.info("click on " + row + " " + col);
+                if (canplay(row, col)) {
+                  play(row, col);
+                } else {
+                  console.warn("canot play on " + row + " " + col);
                 }
               };
             }
@@ -424,11 +429,13 @@
               }
             }
 
-            function drop(img, x, y) {
-              img.css("left", (x*100/7)+"%");
-              img.css("top", (-100/7)+"%");
+            function drop(img, row, col) {
+              img.css("left", (col * 100 / NB_COL) + '%');
+              img.css("top",  ((NB_ROW - 1 - row) * 100 / Math.max(NB_ROW, NB_COL)) + '%');
+              //img.css("left", (x*100/7)+"%");
+              //img.css("top", (-100/7)+"%");
               img.show();
-              img.animate({top: ((5-y)*100/7)+"%"}, 400, "linear", show_win);
+              //img.animate({top: ((5-y)*100/7)+"%"}, 400, "linear", show_win);
             }
 
             function mark_win(x, y, dx, dy) {
@@ -468,7 +475,6 @@
               }
             }
 
-
             function get_pos() {
               var pos = "";
               for (var i = 0; i < moves.length; i++) pos = pos + (moves[i] + 1);
@@ -482,6 +488,7 @@
             }
 
             function  print_solution() {
+                return; // TBD MGOUIN
               print_next_player();
 
               if(won) {
@@ -628,7 +635,7 @@
                 $(".player1").hide();
                 $(".player2").hide();
                 print_solution();
-                history.replaceState(null, null, get_pos_param());
+                //history.replaceState(null, null, get_pos_param());
               }
               //ga('send', 'event', 'game', 'game_reset');
             }
@@ -663,8 +670,7 @@
                 }
               }
 
-              /*
-              for (i = 0; i < 42; i++) {
+              for (var i = 0; i < Math.ceil((NB_ROW * NB_COL) / 2); i++) {
                 var v = $("<div/>");
                 if (i % 2 === 0) v.addClass("player1");
                 else v.addClass("player2");
@@ -672,6 +678,8 @@
                 v.appendTo("#board");
                 stone[i] = v;
               }
+
+              /*
               for (i = 0; i < 4; i++) {
                 var v = $("<div/>");
                 v.addClass("win");
