@@ -405,7 +405,7 @@
               //win();
               //window.history.replaceState(null, null, get_pos_param());
               //if(dont_compute) return;
-              //print_solution();
+              print_solution();
             }
 
             function click_handler(row, col) {
@@ -492,8 +492,8 @@
             }
 
             function print_solution() {
-                return; // TBD MGOUIN
               print_next_player();
+              return; // TBD MGOUIN
 
               if(won) {
                 var player = moves.length%2 == 0 ? "Yellow" : "Red";
@@ -640,7 +640,7 @@
                 $(".player2").hide();
                 $(".player2h").hide();
                 $(".player2v").hide();
-                //print_solution();
+                print_solution();
                 //history.replaceState(null, null, get_pos_param());
               }
             }
@@ -693,7 +693,7 @@
                 stone_v[i] = v;
               }
 
-              //print_solution();
+              print_solution();
             }
 
             function about() {
