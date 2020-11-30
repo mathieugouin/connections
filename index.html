@@ -1,32 +1,18 @@
 <!DOCTYPE html>
-<html prefix="og: http://ogp.me/ns#" lang="en">
+<html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
         <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no">
 
-        <meta property="og:title" content="Connection Game">
-        <meta property="og:url" content="https://connect4.gamesolver.org/en/">
-        <meta property="og:site_name" content="Game Solver">
-        <meta property="og:image" content="https://connect4.gamesolver.org/image?pos=44433436266">
-        <meta property="og:image:type" content="image/png">
-        <meta property="og:image:width" content="700">
-        <meta property="og:image:height" content="600">
-        <meta property="og:type" content="website">
-        <meta property="og:description" content="Optimal solution of a Connect 4 game:&lt;ul&gt;&lt;li&gt;find the best move&lt;/li&gt;&lt;li&gt;play against an unbeatable A.I.&lt;/li&gt;&lt;/ul&gt;">
-        <meta property="fb:app_id" content="633063193494750">
-        <meta name="description" content="Optimal solution of a Connect 4 game:&lt;ul&gt;&lt;li&gt;find the best move&lt;/li&gt;&lt;li&gt;play against an unbeatable A.I.&lt;/li&gt;&lt;/ul&gt;">
-        <meta name="twitter:card" content="summary_large_image">
+        <meta name="description" content="Connections board game">
+
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="mobile-web-app-capable" content="yes">
 
-        <link rel="canonical" href="https://connect4.gamesolver.org/en/">
-
-        <link rel="alternate" hreflang="x-default" href="https://connect4.gamesolver.org/">
-
         <title>Connections</title>
 
-        <script src="jquery-3.5.1.js"></script>
+        <script src="jquery-3.5.1.js" />
 
         <style>
             body {
@@ -127,17 +113,6 @@
             #player_1 {top:0%;}
             #player_2 {top:50%;}
 
-
-            /*
-            div.col0 {left:0%;}
-            div.col1 {left:14.285714286%;}
-            div.col2 {left:28.571428571%;}
-            div.col3 {left:42.857142857%;}
-            div.col4 {left:57.142857143%;}
-            div.col5 {left:71.428571429%;}
-            div.col6 {left:85.714285714%;}
-            */
-
             .button {
               position: absolute;
               width:75%;
@@ -171,9 +146,9 @@
             }
 
             .languagepicker {
-              z-index: 1;
+                z-index: 1;
                 height: 1.5em;
-              width:75%;
+                width:75%;
                 overflow: hidden;
                 transition: height .3s ease;
                 vertical-align: top;
@@ -187,12 +162,12 @@
             .languagepicker li {
                 display: block;
                 border-top: 0.05em solid #8685a2;
-              background-color: #a6a5c9;
+                background-color: #a6a5c9;
             }
 
             .languagepicker li:first-child {
                 border: none;
-              background-color: #a6a5c9;
+                background-color: #a6a5c9;
             }
 
             @media (hover: none) {
@@ -281,13 +256,7 @@
               overflow-y:auto;
             }
 
-
             .board {
-              /*
-              background-image:url(board.svg);
-              background-size: 100% 100%;
-              background-repeat: no-repeat;
-              */
               height:calc(100% / 11);
               width:calc(100% / 11);
               z-index:2;
@@ -414,7 +383,6 @@
             var player_1_auto = false;
             var player_2_auto = false;
 
-
             function auto_play() {
               if(moves.length % 2) return player_2_auto;
               else return player_1_auto;
@@ -432,8 +400,7 @@
               } else {
                 drop(stone_h[moves.length], row, col);
               }
-
-              //height[col]++;
+              
               moves.push(1000 * row + col);
               //win();
               //window.history.replaceState(null, null, get_pos_param());
@@ -470,8 +437,6 @@
             function drop(img, row, col) {
               img.css("left", (col * 100 / NB_COL) + '%');
               img.css("top",  ((NB_ROW - 1 - row) * 100 / Math.max(NB_ROW, NB_COL)) + '%');
-              //img.css("left", (x*100/7)+"%");
-              //img.css("top", (-100/7)+"%");
               img.show();
               //img.animate({top: ((5-y)*100/7)+"%"}, 400, "linear", show_win);
             }
@@ -484,10 +449,11 @@
             }
 
             function show_win() {
-              if(won)
+              if(won) {
                 for(var i = 0; i < 4; i++) {
                   mark[i].show();
                 }
+              }
             }
 
             function win() {
@@ -525,7 +491,7 @@
               else return "?pos=" + pos;
             }
 
-            function  print_solution() {
+            function print_solution() {
                 return; // TBD MGOUIN
               print_next_player();
 
@@ -727,30 +693,7 @@
                 stone_v[i] = v;
               }
 
-              /*
-              for (i = 0; i < 4; i++) {
-                var v = $("<div/>");
-                v.addClass("win");
-                v.hide();
-                v.appendTo("#board");
-                mark[i] = v;
-              }
-              */
-
-              /*
-              var pos = query_param("pos");
-              history.replaceState(null, null, "");
-              history.pushState(null, null, "");
-              $(window).on("popstate", back);
-
-              while(pos.length > 0) {
-                var c = pos.charCodeAt(0) - "1".charCodeAt(0);
-                if(c >= 0 && c <= 6 && canplay(c)) play(c, true);
-                else break;
-                pos = pos.substr(1);
-              }
-              print_solution();
-              */
+              //print_solution();
             }
 
             function about() {
@@ -815,12 +758,11 @@
                     <div id="back" onclick="back()" class="button">back</div>
                     -->
                 </div>
-                <!-- TBD MGouin: 
                 <div id="player_div">
-                    <div id="player_1" class="button active" onclick="toggle_player1()">manual</div>
-                    <div id="player_2" class="button inactive" onclick="toggle_player2()">manual</div>
+                    <!-- onclick="toggle_player1() -->
+                    <div id="player_1" class="button active">manual</div>
+                    <div id="player_2" class="button inactive">manual</div>
                 </div>
-                -->
             </div>
 
             <div id="board">
