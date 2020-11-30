@@ -24,7 +24,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -57,7 +57,7 @@
        xlink:href="#linearGradient2197"
        id="linearGradient1571"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.1443168,0,0,1.1443209,-7.2158399,-7.2160444)"
+       gradientTransform="matrix(1.0900014,0,0,1.090012,-4.50007,-4.500605)"
        x1="7.6271186"
        y1="7.6271186"
        x2="92.372887"
@@ -76,16 +76,16 @@
      inkscape:window-height="975"
      id="namedview6"
      showgrid="false"
-     inkscape:zoom="6.675088"
-     inkscape:cx="48.675137"
-     inkscape:cy="58.005547"
+     inkscape:zoom="5.6568542"
+     inkscape:cx="67.519538"
+     inkscape:cy="47.97875"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg4" />
   <path
-     style="opacity:1;fill:url(#linearGradient1571);fill-opacity:1;stroke:#a3a3a3;stroke-width:3.02399993;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-     d="m 1.512,1.5118268 c 33.402836,31.2477092 65.504774,24.7692102 96.976,0 V 98.488174 c -32.525467,-29.019514 -64.837858,-27.14287 -96.976,0 z"
+     style="opacity:1;fill:url(#linearGradient1571);fill-opacity:1;stroke:#a3a3a3;stroke-width:7.62699986;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+     d="M 3.8134999,3.8130454 C 35.630859,33.577753 66.209067,27.40672 96.1865,3.8130454 V 96.18694 c -30.981634,-27.642261 -61.760306,-25.854682 -92.3730001,0 z"
      id="rect838"
      inkscape:connector-curvature="0"
      sodipodi:nodetypes="ccccc" />

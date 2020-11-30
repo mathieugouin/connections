@@ -24,7 +24,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -51,7 +51,7 @@
        x2="92.372887"
        y2="7.6271172"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(0,1.1443168,-1.1443203,0,107.216,-7.2158148)" />
+       gradientTransform="matrix(0,1.0900014,-1.0900118,0,104.50054,-4.5000698)" />
   </defs>
   <sodipodi:namedview
      pagecolor="#ffffff"
@@ -74,8 +74,8 @@
      inkscape:window-maximized="1"
      inkscape:current-layer="svg4" />
   <path
-     style="opacity:1;fill:url(#linearGradient2805);fill-opacity:1;stroke:#881818;stroke-width:3.02399993;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-     d="m 98.488135,1.5120251 c -35.859165,33.8512519 -24.447516,65.6909859 0,96.9760029 H 1.5118361 c 28.8193349,-31.712159 31.9196499,-63.97153 0,-96.9760029 z"
+     style="opacity:1;fill:url(#linearGradient2805);fill-opacity:1;stroke:#881818;stroke-width:7.62699986;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+     d="M 96.1869,3.8134998 C 62.029582,36.057989 72.899644,66.386438 96.1869,96.1865 H 3.8130196 c 27.4515924,-30.20693 30.4047684,-60.935097 0,-92.3730002 z"
      id="rect838"
      inkscape:connector-curvature="0"
      sodipodi:nodetypes="ccccc" />
