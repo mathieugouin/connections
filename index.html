@@ -2,18 +2,12 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
         <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no">
-
         <meta name="description" content="Connections board game">
-
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="mobile-web-app-capable" content="yes">
-
         <title>Connections</title>
-
         <script src="jquery-3.5.1.js"></script>
-
         <style>
             body {
               margin: 0;
@@ -143,52 +137,6 @@
             .inactive {
               opacity: 0.50;
               border-color: #ffffff;
-            }
-
-            .languagepicker {
-                z-index: 1;
-                height: 1.5em;
-                width:75%;
-                overflow: hidden;
-                transition: height .3s ease;
-                vertical-align: top;
-            }
-
-            .languagepicker a{
-                color: #000;
-                text-decoration: none;
-            }
-
-            .languagepicker li {
-                display: block;
-                border-top: 0.05em solid #8685a2;
-                background-color: #a6a5c9;
-            }
-
-            .languagepicker li:first-child {
-                border: none;
-                background-color: #a6a5c9;
-            }
-
-            @media (hover: none) {
-              .languagepicker li:first-child a {
-                pointer-events: none;
-                cursor: default;
-              }
-            }
-
-            .languagepicker:hover {
-                /* don't forget the 0.05em border : nb_line*1.55 - 0.05 */
-                height: 15.45em;
-            }
-
-            .languagepicker li img {
-                margin-right: 0.5em;
-                height: 0.75em;
-            }
-
-            .languagepicker li:hover {
-                background-color:  #d3d3e4;
             }
 
             #description {
@@ -357,215 +305,102 @@
             // Connections
             var NB_ROW = 11;
             var NB_COL = 11;
+            // TBD MGouin: rename to use BOARD_SIZE everywhere
+            var BOARD_SIZE = 11;
 
-            //var stone = [];
             var stone_h = []; // horizontal
             var stone_v = []; // vertical
             var mark = [];
-            var height = [0, 0, 0, 0, 0, 0, 0];
             var moves = [];
             var solutions = [];
             var board = [
-              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-              ];
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                ];
 
             var won = false;
             var player_1_auto = false;
             var player_2_auto = false;
 
             function auto_play() {
-              if(moves.length % 2) return player_2_auto;
-              else return player_1_auto;
+                if(moves.length % 2) return player_2_auto;
+                else return player_1_auto;
             }
 
             function canplay(row, col) {
-              return board[row][col] == 0;
+                return board[row][col] == 0;
             }
 
             function play(row, col) {
-              board[row][col] = 1 + moves.length % 2;
-              if (isEven(row) && isEven(col) && isEven(moves.length) ||
-                  isOdd(row) && isOdd(col) && isOdd(moves.length)) {
-                drop(stone_v[moves.length], row, col);
-              } else {
-                drop(stone_h[moves.length], row, col);
-              }
-              
-              moves.push(1000 * row + col);
-              //win();
-              //if(dont_compute) return;
-              print_solution();
+                // place the player number (1 or 2) at the position
+                board[row][col] = 1 + moves.length % 2;
+                if (isEven(row) && isEven(col) && isEven(moves.length) ||
+                    isOdd(row) && isOdd(col) && isOdd(moves.length)) {
+                    // Drop horizontal chip
+                    drop(stone_v[moves.length], row, col);
+                } else {
+                    // Drop vertical chip
+                    drop(stone_h[moves.length], row, col);
+                }
+                
+                moves.push(100 * row + col);
+                print_solution();
             }
 
             function click_handler(row, col) {
-              return function () {
-                console.info("click on " + row + " " + col);
-                if (canplay(row, col)) {
-                  play(row, col);
-                } else {
-                  console.warn("canot play on " + row + " " + col);
-                }
-              };
+                return function () {
+                    console.info("click on " + row + " " + col);
+                    if (canplay(row, col)) {
+                        play(row, col);
+                    } else {
+                        console.warn("canot play on " + row + " " + col);
+                    }
+                };
             }
 
             function print_next_player() {
-              if(won) {
-                $("#player_1").removeClass("active").addClass("inactive");
-                $("#player_2").removeClass("active").addClass("inactive");
-              }
-              else if(moves.length % 2 == 0) {
-                $("#player_1").removeClass("inactive").addClass("active");
-                $("#player_2").removeClass("active").addClass("inactive");
-              }
-              else {
-                $("#player_1").removeClass("active").addClass("inactive");
-                $("#player_2").removeClass("inactive").addClass("active");
-              }
+                if (won) {
+                    $("#player_1").removeClass("active").addClass("inactive");
+                    $("#player_2").removeClass("active").addClass("inactive");
+                }
+                else if (moves.length % 2 == 0) {
+                    $("#player_1").removeClass("inactive").addClass("active");
+                    $("#player_2").removeClass("active").addClass("inactive");
+                }
+                else {
+                    $("#player_1").removeClass("active").addClass("inactive");
+                    $("#player_2").removeClass("inactive").addClass("active");
+                }
             }
 
             function drop(img, row, col) {
-              img.css("left", (col * 100 / NB_COL) + '%');
-              img.css("top",  ((NB_ROW - 1 - row) * 100 / Math.max(NB_ROW, NB_COL)) + '%');
-              img.show();
-              //img.animate({top: ((5-y)*100/7)+"%"}, 400, "linear", show_win);
-            }
+                img.css("left", (col * 100 / NB_COL) + '%');
+                //img.css("top",  ((NB_ROW - 1 - row) * 100 / Math.max(NB_ROW, NB_COL)) + '%');
+                img.css("top",  (-1 * 100.0 / BOARD_SIZE) + '%');
+                img.show();
 
-            function mark_win(x, y, dx, dy) {
-              for (var i = 0; i < 4; i++) {
-                mark[i].css("left", ((x + i * dx)*100/7) + '%');
-                mark[i].css("top", ((5 - (y + i * dy))*100/7) + '%');
-              }
-            }
-
-            function show_win() {
-              if(won) {
-                for(var i = 0; i < 4; i++) {
-                  mark[i].show();
-                }
-              }
-            }
-
-            function win() {
-                // TBD MGouin
-            }
-
-            function get_pos() {
-              var pos = "";
-              for (var i = 0; i < moves.length; i++) {
-                  pos = pos + moves[i];
-              }
-              return pos;
-            }
-
-            function get_pos_param() {
+                img.animate(
+                    {
+                        top:
+                        ((NB_ROW - 1 - row) * 100 / Math.max(NB_ROW, NB_COL)) + '%'
+                    },
+                    400,  // ms
+                    "linear"
+                );
             }
 
             function print_solution() {
-              print_next_player();
-              return; // TBD MGOUIN
-
-              if(won) {
-                var player = moves.length%2 == 0 ? "Yellow" : "Red";
-                var message = "[1] won".replace("[1]", player);
-                $("#solution_header").text(message);
-                $(".solution").text("").css("background-image","none");
-                return;
-              }
-              if(moves.length == 42) {
-                var message = "Draw game";
-                $("#solution_header").text(message);
-                $(".solution").text("").css("background-image","none");
-                return;
-              }
-
-              var json = solutions[moves.length];
-              if(json === undefined || json.pos !== get_pos()) { //TODO check != ??
-                compute_solution();
-                return;
-              }
-
-              if(auto_play()) {
-                var best = -100;
-                var possible = [];
-                for (var i = 0; i < 7; i++)
-                  if(json.score[i] != 100 && json.score[i] > best) {
-                    best = json.score[i];
-                    possible = [i];
-                  }
-                  else if(json.score[i] == best) possible.push(i);
-
-                var col = possible[Math.floor((Math.random() * possible.length))];
-                play(col);
-              }
-
-              else {
-
-                var best = -100;
-                for (var i = 0; i < 7; i++)
-                  if(json.score[i] != 100 && json.score[i] > best) best = json.score[i];
-
-                var nb_best = 0;
-                for (var i = 0; i < 7; i++)
-                  if(best == 0 && json.score[i] == 0) nb_best++;
-                  else if(best > 0 && json.score[i] > 0 && json.score[i] != 100) nb_best++;
-
-
-
-                for (var i = 0; i < 7; i++) {
-                  if(json.score[i] == 100) {
-                    $("#sol" + i).text("").css("background-image","none");
-                  }
-                  else {
-                    $("#sol" + i).text(json.score[i]);
-                    if(json.score[i] > 0) {
-                      if(json.score[i] == best) $("#sol" + i).css("background-image","url(up_star.png)");
-                      else $("#sol" + i).css("background-image","url(up.png)");
-                    }
-                    else if(json.score[i] < 0) {
-                      if(json.score[i] == best) $("#sol" + i).css("background-image","url(down_star.png)");
-                      else $("#sol" + i).css("background-image","url(down.png)");
-                    }
-                    else {
-                      if(json.score[i] == best) $("#sol" + i).css("background-image","url(neutral_star.png)");
-                      else $("#sol" + i).css("background-image","url(neutral.png)");
-                    }
-                  }
-                }
-
-                var message;
-                if(best > 0) {
-                  var nb_moves = Math.floor((45 - moves.length)/2) - best;
-                  if(nb_moves > 1) message = "[1] can win in [2] moves".replace("[2]", nb_moves);
-                  else message = "[1] can win in 1 move";
-                }
-                else if(best < 0) {
-                  var nb_moves = Math.floor((44 - moves.length)/2) + best;
-                  if(nb_moves > 1) message = "[1] loses in [2] moves".replace("[2]", nb_moves);
-                  else message = "[1] loses in 1 move";
-                }
-                else {
-                  message = "[1] can draw";
-                }
-
-                var player = moves.length%2 == 0 ? "Red" : "Yellow";
-                $("#solution_header").text(message.replace("[1]", player));
-
-              }
-            }
-
-            function compute_solution() {
-                // TBD MGouin
-                return;
+                print_next_player();
+                return; // TBD MGOUIN
             }
 
             function back(event) {
@@ -576,14 +411,11 @@
                 board[col][height[col]] = 0;
                 if (won) {
                   won = false;
-                  $(".win").hide();
                 }
                 if(auto_play())
                   back();
                 else {
                   print_solution();
-                  if(event == undefined) history.replaceState(null, null, get_pos_param());
-                  else history.pushState(null, null, get_pos_param());
                 }
               }
               else if(auto_play()) {
@@ -591,21 +423,14 @@
               }
             }
 
-            function query_param(key) {
-                var match = location.search.match(new RegExp("[?&]"+key+"=([^&]+)(&|$)"));
-                return (match == null) ? "" : match[1];
-            }
-
             function reset() {
-              if(moves.length > 0) {
                 moves = [];
                 for (var i = 0; i < NB_ROW; i++) {
-                  for (var j = 0; j < NB_COL; j++) {
-                    board[i][j] = 0;
-                  }
+                    for (var j = 0; j < NB_COL; j++) {
+                        board[i][j] = 0;
+                    }
                 }
                 won = false;
-                // $(".win").hide();
                 $(".player1").hide();
                 $(".player1h").hide();
                 $(".player1v").hide();
@@ -613,7 +438,6 @@
                 $(".player2h").hide();
                 $(".player2v").hide();
                 print_solution();
-              }
             }
 
             function isOdd(x) {
@@ -633,74 +457,70 @@
             }
 
             function init() {
-              for (var i = 0; i < NB_ROW; i++) {
-                for (var j = 0; j < NB_COL; j++) {
-                  var v = $("<div/>");
-                  var positionType = getPositionType(i, j);
-                  v.addClass(positionType);
-                  v.css("left", (j * 100 / NB_COL) + '%');
-                  v.css("top",  ((NB_ROW - 1 - i) * 100 / Math.max(NB_ROW, NB_COL)) + '%');
-                  if (positionType == "board") {
-                      v.click(click_handler(i, j));
-                  }
-                  v.appendTo("#board");
+                for (var i = 0; i < NB_ROW; i++) {
+                    for (var j = 0; j < NB_COL; j++) {
+                        var v = $("<div/>");
+                        var positionType = getPositionType(i, j);
+                        v.addClass(positionType);
+                        v.css("left", (j * 100 / NB_COL) + '%');
+                        v.css("top",  ((NB_ROW - 1 - i) * 100 / Math.max(NB_ROW, NB_COL)) + '%');
+                        if (positionType == "board") {
+                            v.click(click_handler(i, j));
+                        }
+                        v.appendTo("#board");
+                    }
                 }
-              }
 
-              var orientation = ['h', 'v'];
-              for (var i = 0; i < Math.ceil((NB_ROW * NB_COL) / 2); i++) {
-                for (var o of orientation) {
-                    var v = $("<div/>");
-                    if (i % 2 === 0)
-                      v.addClass("player1" + o);
-                    else
-                      v.addClass("player2" + o);
-                    v.hide();
-                    v.appendTo("#board");
-                    if (o == 'h')
-                        stone_h[i] = v;
-                    else
-                        stone_v[i] = v;
+                var orientation = ['h', 'v'];
+                for (var i = 0; i < Math.ceil((NB_ROW * NB_COL) / 2); i++) {
+                    for (var o of orientation) {
+                        var v = $("<div/>");
+                        if (i % 2 === 0)
+                          v.addClass("player1" + o);
+                        else
+                          v.addClass("player2" + o);
+                        v.hide();
+                        v.appendTo("#board");
+                        if (o == 'h')
+                            stone_h[i] = v;
+                        else
+                            stone_v[i] = v;
+                    }
                 }
-              }
-                
-              print_solution();
+                  
+                print_solution();
             }
 
             function about() {
-              $("#about_div").fadeToggle();
-            }
-
-            function toggle_solution() {
-              $("#hide_solution_div").fadeToggle();
+                $("#about_div").fadeToggle();
             }
 
             function toggle_player1() {
-              if (player_1_auto) {
-                $("#player_1").text("manual");
-                player_1_auto = false;
-              }
-              else {
-                $("#player_1").text("auto");
-                $("#player_2").text("manual");
-                player_1_auto = true;
-                player_2_auto = false;
-                print_solution();
-              }
+                if (player_1_auto) {
+                    $("#player_1").text("manual");
+                    player_1_auto = false;
+                }
+                else {
+                    $("#player_1").text("auto");
+                    $("#player_2").text("manual");
+                    player_1_auto = true;
+                    player_2_auto = false;
+                    print_solution();
+                }
             }
 
             function toggle_player2() {
-              if (player_2_auto) {
-                $("#player_2").text("manual");
-                player_2_auto = false;
-              }
-              else {
-                $("#player_2").text("auto");
-                $("#player_1").text("manual");
-                player_2_auto = true;
-                player_1_auto = false;
-                print_solution();
-              }
+                if (player_2_auto) {
+                    $("#player_2").text("manual");
+                    player_2_auto = false;
+                }
+                else {
+                    $("#player_2").text("auto");
+                    $("#player_1").text("manual");
+                    player_2_auto = true;
+                    player_1_auto = false;
+                    print_solution();
+                }
             }
 
             $(window).on('load', function(){init();});
@@ -713,8 +533,8 @@
         <div id="container">
             <div id="nav" class="ui-widget">
                 <div id="title"><h1>Connections</h1></div>
-                <div id="description">2 ways to win:
-                    1. Surround the opposing colour with your chips; 2. 
+                <div id="description">2 ways to win:<br>
+                    1. Surround the opposing colour with your chips;<br>
                     2. Build a line of your colour end to end of the grid
                 </div>
 
@@ -738,7 +558,8 @@
             <div id="about_div" onclick="about()">
                 <h4>Credits</h4>
                 <p>Thanks to <a href="https://fr.linkedin.com/in/pascalpons">Pascal Pons</a> that wrote the awesome 
-                    <a href="https://connect4.gamesolver.org">Connect 4 solver</a> than inspired me in doing this simple connection online game.
+                    <a href="https://connect4.gamesolver.org">Connect 4 solver</a> than inspired me in
+                    doing this simple connection online game.
 
                 <h4>The Author</h4>
                 <p><a href="https://github.com/mathieugouin/connections">Mathieu Gouin</a></p>
