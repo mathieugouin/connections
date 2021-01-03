@@ -403,7 +403,6 @@
               
               moves.push(1000 * row + col);
               //win();
-              //window.history.replaceState(null, null, get_pos_param());
               //if(dont_compute) return;
               print_solution();
             }
@@ -457,38 +456,18 @@
             }
 
             function win() {
-              var x = moves[moves.length - 1];
-              var y = height[x] - 1;
-
-              if (y >= 3 && board[x][y - 3] == board[x][y] && board[x][y - 2] == board[x][y] && board[x][y - 1] == board[x][y]) {
-                mark_win(x, y, 0, -1);
-                won = true;
-              }
-              for (var dy = -1; dy <= 1; dy++) {
-                var nb = 0;
-                for (var dx = 1; x + dx < 7 && y + dx * dy < 6 && y + dx * dy >= 0; dx++)
-                  if (board[x + dx][y + dx * dy] == board[x][y]) nb++;
-                  else break;
-                for (var dx = -1; x + dx >= 0 && y + dx * dy < 6 && y + dx * dy >= 0; dx--)
-                  if (board[x + dx][y + dx * dy] == board[x][y]) nb++;
-                  else break;
-                if (nb >= 3) {
-                  mark_win(x + dx + 1, y + (dx + 1) * dy, 1, dy);
-                  won = true;
-                }
-              }
+                // TBD MGouin
             }
 
             function get_pos() {
               var pos = "";
-              for (var i = 0; i < moves.length; i++) pos = pos + (moves[i] + 1);
+              for (var i = 0; i < moves.length; i++) {
+                  pos = pos + moves[i];
+              }
               return pos;
             }
 
             function get_pos_param() {
-              var pos=get_pos();
-              if(pos == "") return location.pathname;
-              else return "?pos=" + pos;
             }
 
             function print_solution() {
@@ -587,13 +566,6 @@
             function compute_solution() {
                 // TBD MGouin
                 return;
-
-              $("#solution_header").text("computing solution... ");
-              $(".solution").text("").css("background-image","none");
-              $.getJSON("/solve", {pos: get_pos()}, function(json) {
-                  solutions[json.pos.length] = json;
-                  print_solution();
-                  });
             }
 
             function back(event) {
@@ -641,7 +613,6 @@
                 $(".player2h").hide();
                 $(".player2v").hide();
                 print_solution();
-                //history.replaceState(null, null, get_pos_param());
               }
             }
 
@@ -665,34 +636,34 @@
               for (var i = 0; i < NB_ROW; i++) {
                 for (var j = 0; j < NB_COL; j++) {
                   var v = $("<div/>");
-                  v.addClass(getPositionType(i, j));
+                  var positionType = getPositionType(i, j);
+                  v.addClass(positionType);
                   v.css("left", (j * 100 / NB_COL) + '%');
                   v.css("top",  ((NB_ROW - 1 - i) * 100 / Math.max(NB_ROW, NB_COL)) + '%');
-                  if (getPositionType(i, j) == "board") {
+                  if (positionType == "board") {
                       v.click(click_handler(i, j));
                   }
                   v.appendTo("#board");
                 }
               }
 
+              var orientation = ['h', 'v'];
               for (var i = 0; i < Math.ceil((NB_ROW * NB_COL) / 2); i++) {
-                var v = $("<div/>");
-                if (i % 2 === 0) v.addClass("player1h");
-                else v.addClass("player2h");
-                v.hide();
-                v.appendTo("#board");
-                stone_h[i] = v;
+                for (var o of orientation) {
+                    var v = $("<div/>");
+                    if (i % 2 === 0)
+                      v.addClass("player1" + o);
+                    else
+                      v.addClass("player2" + o);
+                    v.hide();
+                    v.appendTo("#board");
+                    if (o == 'h')
+                        stone_h[i] = v;
+                    else
+                        stone_v[i] = v;
+                }
               }
-
-              for (var i = 0; i < Math.ceil((NB_ROW * NB_COL) / 2); i++) {
-                var v = $("<div/>");
-                if (i % 2 === 0) v.addClass("player1v");
-                else v.addClass("player2v");
-                v.hide();
-                v.appendTo("#board");
-                stone_v[i] = v;
-              }
-
+                
               print_solution();
             }
 
@@ -705,7 +676,7 @@
             }
 
             function toggle_player1() {
-              if(player_1_auto) {
+              if (player_1_auto) {
                 $("#player_1").text("manual");
                 player_1_auto = false;
               }
@@ -719,7 +690,7 @@
             }
 
             function toggle_player2() {
-              if(player_2_auto) {
+              if (player_2_auto) {
                 $("#player_2").text("manual");
                 player_2_auto = false;
               }
@@ -743,16 +714,12 @@
             <div id="nav" class="ui-widget">
                 <div id="title"><h1>Connections</h1></div>
                 <div id="description">2 ways to win:
-                    <ul>
-                        <li>Surround the opposing colour with your chips</li>
-                        <li>Build a line of your colour end to end of the grid</li>
-                    </ul>
+                    1. Surround the opposing colour with your chips; 2. 
+                    2. Build a line of your colour end to end of the grid
                 </div>
 
                 <div id="button_div">
-                    <!-- TBD MGouin: 
                     <div id="about" onclick="about()" class="button">about</div>
-                    -->
                     <div id="new" onclick="reset()" class="button">new</div>
                     <!-- TBD MGouin: 
                     <div id="back" onclick="back()" class="button">back</div>
@@ -768,27 +735,14 @@
             <div id="board">
             </div>
 
-            <!-- TBD MGouin:
             <div id="about_div" onclick="about()">
-                <h4>Rules of the Game</h4>
-                <p><a href="https://en.wikipedia.org/wiki/Connect_Four">Connect Four</a> (or <em>Four in a Row</em>) is a two-player strategy game. Each player takes turns dropping a chip of his color into a column. The first player to align four chips wins.</p>
+                <h4>Credits</h4>
+                <p>Thanks to <a href="https://fr.linkedin.com/in/pascalpons">Pascal Pons</a> that wrote the awesome 
+                    <a href="https://connect4.gamesolver.org">Connect 4 solver</a> than inspired me in doing this simple connection online game.
 
-                <h4>History</h4>
-                <p>The Connect 4 game is a solved strategy game: the first player (Red) has a winning strategy allowing him to always win. The game has been independently solved by James Dow Allen and Victor Allis in 1988.</p>
-
-                <h4>Connect 4 Solver</h4>
-                <p>This Connect 4 solver computes the exact outcome of any position assuming both players play perfectly. A score can be displayed for each playable column: winning moves have a positive score and losing moves have a negative score. The absolute value of the score gives you the number of moves <em>before</em> the end of the game. Hence the best moves have the highest scores. You can play against the Artificial Intelligence by toggling the manual/auto mode of a player.</p>
-
-                <h4>The Algorithm</h4>
-                <p>The solver uses <a href="https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning">alpha beta pruning</a>. You can read the following tutorial (with source code) explaining <a href="http://blog.gamesolver.org/">how to solve Connect Four</a>.</p>
-
-                <h4>The Author: <a href="https://fr.linkedin.com/in/pascalpons">Pascal Pons</a></h4>
-                <p>Do not hesitate to send me comments, suggestions, or bug reports at <a href="mailto:connect4@gamesolver.org">connect4@gamesolver.org</a>.</p>
-
-                <h4>Translation</h4>
-                <p>You can contribute to the translation of this website in other languages by providing a translated version of this <a href="https://connect4.gamesolver.org/i18n.properties">localization file</a>. A big thank you to the translators: </p><ul><li>(RU) Slava</li><li>(TR) <a href="https://github.com/ek33">Ekrem</a></li><li>(SE) Speeder</li><li>(PT) Nhaar</li><li>(ES) Francisco</li><li>(DE) Lenny5156</li><li>(ZH) Michael</li></ul><p></p>
+                <h4>The Author</h4>
+                <p><a href="https://github.com/mathieugouin/connections">Mathieu Gouin</a></p>
             </div>
-            -->
 
         </div>
     </body>
