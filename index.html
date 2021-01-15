@@ -332,7 +332,7 @@
 
             var my_timer = setInterval(check_auto_play, 1000);
 
-            function is_current_player_auto_play() {
+            function is_current_player_auto() {
                 if(moves.length % 2) return player_2_auto;
                 else return player_1_auto;
             }
@@ -380,7 +380,7 @@
             }
 
             function check_auto_play() {
-                if (is_current_player_auto_play()) {
+                if (is_current_player_auto()) {
                     auto_play();
                 }
             }
@@ -388,7 +388,7 @@
             function click_handler(row, col) {
                 return function () {
                     console.info("click on " + row + " " + col);
-                    if (!is_current_player_auto_play()) {
+                    if (!is_current_player_auto()) {
                         if (canplay(row, col)) {
                             play(row, col);
                         } else {
@@ -434,7 +434,7 @@
                 return;
             }
 
-            function back() {
+            function back_handler() {
                 if (moves.length > 0) {
                     var combinedRowCol = moves.pop();
                     var row = Math.floor(combinedRowCol / 100);
@@ -447,6 +447,11 @@
 
                     if (won) {
                         won = false;
+                    }
+
+                    if (is_current_player_auto()) {
+                        console.info("back again for auto player");
+                        back_handler();
                     }
 
                     print_solution();
@@ -575,7 +580,7 @@
                 <div id="button_div">
                     <div id="about" onclick="about()" class="button">about</div>
                     <div id="new" onclick="reset()" class="button">new</div>
-                    <div id="back" onclick="back()" class="button">back</div>
+                    <div id="back" onclick="back_handler()" class="button">back</div>
                 </div>
                 <div id="player_div">
                     <div id="player_1" class="button active" onclick="toggle_player1()">manual</div>
