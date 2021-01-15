@@ -308,11 +308,13 @@
             // TBD MGouin: rename to use BOARD_SIZE everywhere
             var BOARD_SIZE = 11;
 
+            var played_img = [];
             var stone_h = []; // horizontal
             var stone_v = []; // vertical
             var mark = [];
             var moves = [];
             var solutions = [];
+
             var board = [
                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -343,14 +345,17 @@
             function play(row, col) {
                 // place the player number (1 or 2) at the position
                 board[row][col] = 1 + moves.length % 2;
+                var img;
                 if (isEven(row) && isEven(col) && isEven(moves.length) ||
                     isOdd(row) && isOdd(col) && isOdd(moves.length)) {
-                    // Drop horizontal chip
-                    drop(stone_v[moves.length], row, col);
-                } else {
                     // Drop vertical chip
-                    drop(stone_h[moves.length], row, col);
+                    img = stone_v[moves.length];
+                } else {
+                    // Drop horizontal chip
+                    img = stone_h[moves.length];
                 }
+                drop(img, row, col);
+                played_img.push(img);
                 
                 moves.push(100 * row + col);
                 print_solution();
@@ -403,28 +408,38 @@
                 return; // TBD MGOUIN
             }
 
-            function back(event) {
-              if (moves.length > 0) {
-                var col = moves.pop();
-                height[col]--;
-                stone[moves.length].hide();
-                board[col][height[col]] = 0;
-                if (won) {
-                  won = false;
+            function back() {
+                if (moves.length > 0) {
+                    var combinedRowCol = moves.pop();
+                    var row = Math.floor(combinedRowCol / 100);
+                    var col = combinedRowCol % 100;
+                    console.info("back " + row + " " + col);
+
+                    played_img.pop().hide();
+
+                    board[row][col] = 0;  // mark board as empty
+
+                    if (won) {
+                        won = false;
+                    }
+
+                    if (auto_play()) {
+                        back();
+                    }
+                    else {
+                        print_solution();
+                    }
                 }
-                if(auto_play())
-                  back();
-                else {
-                  print_solution();
+                else if(auto_play()) {
+                    print_solution();
                 }
-              }
-              else if(auto_play()) {
-                print_solution();
-              }
             }
 
+            // Reset button click handler
             function reset() {
                 moves = [];
+                played_img = [];
+
                 for (var i = 0; i < NB_ROW; i++) {
                     for (var j = 0; j < NB_COL; j++) {
                         board[i][j] = 0;
@@ -456,6 +471,7 @@
                 return "board";
             }
 
+            // Once at page load
             function init() {
                 for (var i = 0; i < NB_ROW; i++) {
                     for (var j = 0; j < NB_COL; j++) {
@@ -476,9 +492,9 @@
                     for (var o of orientation) {
                         var v = $("<div/>");
                         if (i % 2 === 0)
-                          v.addClass("player1" + o);
+                            v.addClass("player1" + o);
                         else
-                          v.addClass("player2" + o);
+                            v.addClass("player2" + o);
                         v.hide();
                         v.appendTo("#board");
                         if (o == 'h')
@@ -542,8 +558,8 @@
                     <div id="about" onclick="about()" class="button">about</div>
                     <div id="new" onclick="reset()" class="button">new</div>
                     <!-- TBD MGouin: 
-                    <div id="back" onclick="back()" class="button">back</div>
                     -->
+                    <div id="back" onclick="back()" class="button">back</div>
                 </div>
                 <div id="player_div">
                     <!-- onclick="toggle_player1() -->
