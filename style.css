@@ -238,23 +238,6 @@ h1 {
   z-index:3;
 }
 
-.player1 {
-  background-image:url(red.svg);
-  width:calc(100% / 11);
-  height:calc(100% / 11);
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-  z-index:2;
-}
-.player2 {
-  background-image:url(white.svg);
-  width:calc(100% / 11);
-  height:calc(100% / 11);
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-  z-index:2;
-}
-
 .player1h {
   background-image:url(red_h.svg);
   width:calc(100% / 11);
