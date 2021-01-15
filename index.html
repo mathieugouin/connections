@@ -330,7 +330,7 @@
             // TBD MGouin: Still not working yet...
             var won = false;
 
-            var my_timer = setInterval(check_auto_play, 1000);
+            var my_timer = setInterval(check_auto_play, 500);
 
             function is_current_player_auto() {
                 if(moves.length % 2) return player_2_auto;
@@ -380,7 +380,7 @@
             }
 
             function check_auto_play() {
-                if (is_current_player_auto()) {
+                if (is_current_player_auto() && moves.length < Math.ceil(BOARD_SIZE * BOARD_SIZE / 2)) {
                     auto_play();
                 }
             }
@@ -541,9 +541,9 @@
                 }
                 else {
                     $("#player_1").text("auto");
-                    $("#player_2").text("manual");
+                    //TBD MGouin: $("#player_2").text("manual");
                     player_1_auto = true;
-                    player_2_auto = false;
+                    //TBD MGouin: player_2_auto = false;
                     print_solution();
                 }
             }
@@ -555,9 +555,9 @@
                 }
                 else {
                     $("#player_2").text("auto");
-                    $("#player_1").text("manual");
+                    //TBD MGouin: $("#player_1").text("manual");
                     player_2_auto = true;
-                    player_1_auto = false;
+                    //TBD MGouin: player_1_auto = false;
                     print_solution();
                 }
             }
