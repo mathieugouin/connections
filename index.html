@@ -302,18 +302,13 @@
         <script type="text/javascript">
             //<![CDATA[
 
-            // Connections
-            var NB_ROW = 11;
-            var NB_COL = 11;
-            // TBD MGouin: rename to use BOARD_SIZE everywhere
             var BOARD_SIZE = 11;
 
+            var moves = [];
             var played_img = [];
+
             var stone_h = []; // horizontal
             var stone_v = []; // vertical
-            var mark = [];
-            var moves = [];
-            var solutions = [];
 
             var board = [
                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -329,6 +324,7 @@
                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 ];
 
+            // TBD MGouin: Still not working yet...
             var won = false;
             var player_1_auto = false;
             var player_2_auto = false;
@@ -372,7 +368,7 @@
                 };
             }
 
-            function print_next_player() {
+            function update_next_player() {
                 if (won) {
                     $("#player_1").removeClass("active").addClass("inactive");
                     $("#player_2").removeClass("active").addClass("inactive");
@@ -388,15 +384,15 @@
             }
 
             function drop(img, row, col) {
-                img.css("left", (col * 100 / NB_COL) + '%');
-                //img.css("top",  ((NB_ROW - 1 - row) * 100 / Math.max(NB_ROW, NB_COL)) + '%');
+                img.css("left", (col * 100 / BOARD_SIZE) + '%');
+                //img.css("top",  ((BOARD_SIZE - 1 - row) * 100 / BOARD_SIZE) + '%');
                 img.css("top",  (-1 * 100.0 / BOARD_SIZE) + '%');
                 img.show();
 
                 img.animate(
                     {
                         top:
-                        ((NB_ROW - 1 - row) * 100 / Math.max(NB_ROW, NB_COL)) + '%'
+                        ((BOARD_SIZE - 1 - row) * 100 / BOARD_SIZE) + '%'
                     },
                     400,  // ms
                     "linear"
@@ -404,8 +400,8 @@
             }
 
             function print_solution() {
-                print_next_player();
-                return; // TBD MGOUIN
+                update_next_player();
+                return;
             }
 
             function back() {
@@ -440,8 +436,8 @@
                 moves = [];
                 played_img = [];
 
-                for (var i = 0; i < NB_ROW; i++) {
-                    for (var j = 0; j < NB_COL; j++) {
+                for (var i = 0; i < BOARD_SIZE; i++) {
+                    for (var j = 0; j < BOARD_SIZE; j++) {
                         board[i][j] = 0;
                     }
                 }
@@ -473,13 +469,13 @@
 
             // Once at page load
             function init() {
-                for (var i = 0; i < NB_ROW; i++) {
-                    for (var j = 0; j < NB_COL; j++) {
+                for (var i = 0; i < BOARD_SIZE; i++) {
+                    for (var j = 0; j < BOARD_SIZE; j++) {
                         var v = $("<div/>");
                         var positionType = getPositionType(i, j);
                         v.addClass(positionType);
-                        v.css("left", (j * 100 / NB_COL) + '%');
-                        v.css("top",  ((NB_ROW - 1 - i) * 100 / Math.max(NB_ROW, NB_COL)) + '%');
+                        v.css("left", (j * 100 / BOARD_SIZE) + '%');
+                        v.css("top",  ((BOARD_SIZE - 1 - i) * 100 / BOARD_SIZE) + '%');
                         if (positionType == "board") {
                             v.click(click_handler(i, j));
                         }
@@ -488,7 +484,7 @@
                 }
 
                 var orientation = ['h', 'v'];
-                for (var i = 0; i < Math.ceil((NB_ROW * NB_COL) / 2); i++) {
+                for (var i = 0; i < Math.ceil((BOARD_SIZE * BOARD_SIZE) / 2); i++) {
                     for (var o of orientation) {
                         var v = $("<div/>");
                         if (i % 2 === 0)
@@ -557,13 +553,12 @@
                 <div id="button_div">
                     <div id="about" onclick="about()" class="button">about</div>
                     <div id="new" onclick="reset()" class="button">new</div>
-                    <!-- TBD MGouin: 
-                    -->
                     <div id="back" onclick="back()" class="button">back</div>
                 </div>
                 <div id="player_div">
                     <!-- onclick="toggle_player1() -->
                     <div id="player_1" class="button active">manual</div>
+                    <!-- onclick="toggle_player2() -->
                     <div id="player_2" class="button inactive">manual</div>
                 </div>
             </div>
