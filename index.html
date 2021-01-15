@@ -330,12 +330,18 @@
             // TBD MGouin: Still not working yet...
             var won = false;
 
-            function auto_play() {
+            var my_timer = setInterval(check_auto_play, 1000);
+
+            function is_current_player_auto_play() {
                 if(moves.length % 2) return player_2_auto;
                 else return player_1_auto;
             }
 
             function canplay(row, col) {
+                if (isOdd(row) && isEven(col))
+                    return false;
+                if (isEven(row) && isOdd(col))
+                    return false;
                 return board[row][col] == 0;
             }
 
@@ -358,13 +364,36 @@
                 print_solution();
             }
 
+            function getRandomInt(max) {
+                return Math.floor(Math.random() * Math.floor(max));
+            }
+
+            // Crude random auto player
+            function auto_play() {
+                var row;
+                var col;
+                do {
+                    row = getRandomInt(BOARD_SIZE);
+                    col = getRandomInt(BOARD_SIZE);
+                } while (!canplay(row, col))
+                play(row, col);
+            }
+
+            function check_auto_play() {
+                if (is_current_player_auto_play()) {
+                    auto_play();
+                }
+            }
+
             function click_handler(row, col) {
                 return function () {
                     console.info("click on " + row + " " + col);
-                    if (!auto_play() && canplay(row, col)) {
-                        play(row, col);
-                    } else {
-                        console.warn("canot play on " + row + " " + col);
+                    if (!is_current_player_auto_play()) {
+                        if (canplay(row, col)) {
+                            play(row, col);
+                        } else {
+                            console.warn("canot play on " + row + " " + col);
+                        }
                     }
                 };
             }
