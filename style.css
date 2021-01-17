@@ -298,20 +298,10 @@ h1 {
     z-index: 1;
 }
 
-.solution {
-    width: calc(100% / 7);
-    height: 2em;
-    line-height: 2em;
-    background-image: none;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-}
-
 .win {
     background-image: url(win.png);
-    width: calc(100% / 7);
-    height: calc(100% / 7);
+    width: calc(100% / 11);
+    height: calc(100% / 11);
     background-size: 100% 100%;
     background-repeat: no-repeat;
     z-index: 3;
