@@ -43,9 +43,16 @@
 
             var my_timer = setInterval(check_auto_play, 500);
 
+            function getCurrentPlayerNumber() {
+                return 1 + moves.length % 2;
+            }
+
             function is_current_player_auto() {
-                if(moves.length % 2) return player_2_auto;
-                else return player_1_auto;
+                if (getCurrentPlayerNumber() == 2) {
+                    return player_2_auto;
+                } else {
+                    return player_1_auto;
+                }
             }
 
             function canplay(row, col) {
@@ -58,10 +65,10 @@
 
             function play(row, col) {
                 // place the player number (1 or 2) at the position
-                board[row][col] = 1 + moves.length % 2;
+                board[row][col] = getCurrentPlayerNumber();
                 var img;
-                if (isEven(row) && isEven(col) && isEven(moves.length) ||
-                    isOdd(row) && isOdd(col) && isOdd(moves.length)) {
+                if (isEven(row) && isEven(col) && getCurrentPlayerNumber() == 1 ||
+                    isOdd(row) && isOdd(col) && getCurrentPlayerNumber() == 2) {
                     // Drop vertical chip
                     img = stone_v[moves.length];
                 } else {
@@ -114,7 +121,7 @@
                     $("#player_1").removeClass("active").addClass("inactive");
                     $("#player_2").removeClass("active").addClass("inactive");
                 }
-                else if (moves.length % 2 == 0) {
+                else if (getCurrentPlayerNumber() == 1) {
                     $("#player_1").removeClass("inactive").addClass("active");
                     $("#player_2").removeClass("active").addClass("inactive");
                 }
@@ -125,15 +132,19 @@
             }
 
             function drop(img, row, col) {
-                img.css("left", (col * 100 / BOARD_SIZE) + '%');
-                //img.css("top",  ((BOARD_SIZE - 1 - row) * 100 / BOARD_SIZE) + '%');
-                img.css("top",  (-1 * 100.0 / BOARD_SIZE) + '%');
+                img.css("left", (-1 * 100.0 / BOARD_SIZE) + '%');
+                if (getCurrentPlayerNumber() == 1) {
+                    img.css("top",  (-1 * 100.0 / BOARD_SIZE) + '%');
+                } else {
+                    img.css("top",  (100.0) + '%');
+                }
+                
                 img.show();
 
                 img.animate(
                     {
-                        top:
-                        ((BOARD_SIZE - 1 - row) * 100 / BOARD_SIZE) + '%'
+                        top:  ((BOARD_SIZE - 1 - row) * 100 / BOARD_SIZE) + '%',
+                        left: (col * 100 / BOARD_SIZE) + '%'
                     },
                     400,  // ms
                     "linear"
