@@ -22,6 +22,20 @@ var board = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     ];
 
+var win_mark = [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    ];
+
 var player_1_auto = false;
 var player_2_auto = false;
 
@@ -167,21 +181,24 @@ function back_handler() {
     }
 }
 
-// Reset button click handler
-function reset() {
+// New game button click handler
+function new_handler() {
     moves = [];
     played_img = [];
 
+    // TBD Reset board
     for (var i = 0; i < BOARD_SIZE; i++) {
         for (var j = 0; j < BOARD_SIZE; j++) {
             board[i][j] = 0;
         }
     }
+
     won = false;
     $(".player1h").hide();
     $(".player1v").hide();
     $(".player2h").hide();
     $(".player2v").hide();
+    $(".win").hide();
     print_solution();
 }
 
@@ -201,47 +218,61 @@ function getPositionType(row, col) {
     return "board";
 }
 
-// Once at page load
+// Run only once at page load
 function init() {
     for (var i = 0; i < BOARD_SIZE; i++) {
         for (var j = 0; j < BOARD_SIZE; j++) {
-            var v = $("<div/>");
+            var img = $("<div/>");
             var positionType = getPositionType(i, j);
-            v.addClass(positionType);
-            v.css("left", (j * 100 / BOARD_SIZE) + '%');
-            v.css("top",  ((BOARD_SIZE - 1 - i) * 100 / BOARD_SIZE) + '%');
+            img.addClass(positionType);
+            img.css("left", (j * 100 / BOARD_SIZE) + '%');
+            img.css("top",  ((BOARD_SIZE - 1 - i) * 100 / BOARD_SIZE) + '%');
             if (positionType == "board") {
-                v.click(click_handler(i, j));
+                img.click(click_handler(i, j));
             }
-            v.appendTo("#board");
+            img.appendTo("#board");
         }
     }
 
     var orientation = ['h', 'v'];
     for (var i = 0; i < Math.ceil((BOARD_SIZE * BOARD_SIZE) / 2); i++) {
         for (var o of orientation) {
-            var v = $("<div/>");
+            var img = $("<div/>");
             if (i % 2 === 0)
-                v.addClass("player1" + o);
+                img.addClass("player1" + o);
             else
-                v.addClass("player2" + o);
-            v.hide();
-            v.appendTo("#board");
+                img.addClass("player2" + o);
+            img.hide();
+            img.appendTo("#board");
             if (o == 'h')
-                stone_h[i] = v;
+                stone_h[i] = img;
             else
-                stone_v[i] = v;
+                stone_v[i] = img;
         }
     }
       
+    // Winner mark
+    for (var i = 0; i < BOARD_SIZE; i++) {
+        for (var j = 0; j < BOARD_SIZE; j++) {
+            var img = $("<div/>");
+            img.addClass('win');
+            img.css("left", (j * 100 / BOARD_SIZE) + '%');
+            img.css("top",  ((BOARD_SIZE - 1 - i) * 100 / BOARD_SIZE) + '%');
+            img.hide();
+            img.appendTo("#board");
+
+            win_mark[i][j] = img;
+        }
+    }
+
     print_solution();
 }
 
-function about() {
+function about_handler() {
     $("#about_div").fadeToggle();
 }
 
-function toggle_player1() {
+function toggle_player1_handler() {
     if (player_1_auto) {
         $("#player_1").text("manual");
         player_1_auto = false;
@@ -255,7 +286,7 @@ function toggle_player1() {
     }
 }
 
-function toggle_player2() {
+function toggle_player2_handler() {
     if (player_2_auto) {
         $("#player_2").text("manual");
         player_2_auto = false;

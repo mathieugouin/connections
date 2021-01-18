@@ -23,20 +23,20 @@
                 </div>
 
                 <div id="button_div">
-                    <div id="about" onclick="about()" class="button">about</div>
-                    <div id="new" onclick="reset()" class="button">new</div>
+                    <div id="about" onclick="about_handler()" class="button">about</div>
+                    <div id="new" onclick="new_handler()" class="button">new</div>
                     <div id="back" onclick="back_handler()" class="button">back</div>
                 </div>
                 <div id="player_div">
-                    <div id="player_1" class="button active" onclick="toggle_player1()">manual</div>
-                    <div id="player_2" class="button inactive" onclick="toggle_player2()">manual</div>
+                    <div id="player_1" class="button active"   onclick="toggle_player1_handler()">manual</div>
+                    <div id="player_2" class="button inactive" onclick="toggle_player2_handler()">manual</div>
                 </div>
             </div>
 
             <div id="board">
             </div>
 
-            <div id="about_div" onclick="about()">
+            <div id="about_div" onclick="about_handler()">
                 <h2>Credits</h2>
                 <p>Thanks to <a href="https://fr.linkedin.com/in/pascalpons">Pascal Pons</a> that wrote the awesome 
                     <a href="https://connect4.gamesolver.org">Connect 4 solver</a> than inspired me in
