@@ -8,33 +8,9 @@ var played_img = [];
 var stone_h = []; // horizontal
 var stone_v = []; // vertical
 
-var board = [
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    ];
+var board = new Array(BOARD_SIZE).fill(0).map(() => new Array(BOARD_SIZE).fill(0));
 
-var win_mark = [
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    ];
+var win_mark_img = new Array(BOARD_SIZE).fill(0).map(() => new Array(BOARD_SIZE).fill(0));
 
 var player_1_auto = false;
 var player_2_auto = false;
@@ -181,17 +157,28 @@ function back_handler() {
     }
 }
 
+function getPositionType(row, col) {
+    if (isOdd(row) && isEven(col))
+        return 1;
+    if (isEven(row) && isOdd(col))
+        return 2;
+    return 0;
+}
+
+function reset_board() {
+    for (var i = 0; i < BOARD_SIZE; i++) {
+        for (var j = 0; j < BOARD_SIZE; j++) {
+            board[i][j] = getPositionType(i, j);
+        }
+    }
+}
+
 // New game button click handler
 function new_handler() {
     moves = [];
     played_img = [];
 
-    // TBD Reset board
-    for (var i = 0; i < BOARD_SIZE; i++) {
-        for (var j = 0; j < BOARD_SIZE; j++) {
-            board[i][j] = 0;
-        }
-    }
+    reset_board();
 
     won = false;
     $(".player1h").hide();
@@ -210,24 +197,24 @@ function isEven(x) {
     return !isOdd(x);
 }
 
-function getPositionType(row, col) {
-    if (isOdd(row) && isEven(col))
-        return "board_pin_red";
-    if (isEven(row) && isOdd(col))
-        return "board_pin_white";
-    return "board";
-}
-
 // Run only once at page load
 function init() {
     for (var i = 0; i < BOARD_SIZE; i++) {
         for (var j = 0; j < BOARD_SIZE; j++) {
             var img = $("<div/>");
             var positionType = getPositionType(i, j);
-            img.addClass(positionType);
+            
+            var div_class = 'board';
+            if (positionType == 1) {
+                div_class = 'board_pin_red';
+            } else if (positionType == 2) {
+                div_class = 'board_pin_white';
+            }
+
+            img.addClass(div_class);
             img.css("left", (j * 100 / BOARD_SIZE) + '%');
             img.css("top",  ((BOARD_SIZE - 1 - i) * 100 / BOARD_SIZE) + '%');
-            if (positionType == "board") {
+            if (positionType == 0) {
                 img.click(click_handler(i, j));
             }
             img.appendTo("#board");
@@ -261,10 +248,11 @@ function init() {
             img.hide();
             img.appendTo("#board");
 
-            win_mark[i][j] = img;
+            win_mark_img[i][j] = img;
         }
     }
 
+    reset_board();
     print_solution();
 }
 
