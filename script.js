@@ -4,7 +4,7 @@
  * Globals                                                                      *
  ********************************************************************************/
 
-var BOARD_SIZE = 11;
+const BOARD_SIZE = 11;
 
 var moves = [];  // list of position of moves, in order
 var played_img = [];  // list of div images that were played, in order
@@ -160,11 +160,13 @@ function init() {
  ********************************************************************************/
 
 function about_handler() {
+    console.info("about_handler()");
     $("#about_div").fadeToggle();
 }
 
 // New game button click handler
 function new_handler() {
+    console.info("new_handler()");
     moves = [];
     played_img = [];
 
@@ -180,10 +182,11 @@ function new_handler() {
 }
 
 function back_handler() {
+    console.info("back_handler()");
     if (moves.length > 0) {
         var combinedRowCol = moves.pop();
-        var row = Math.floor(combinedRowCol / 100);
-        var col = combinedRowCol % 100;
+        var row = combinedRowCol[0];
+        var col = combinedRowCol[1];
         console.info("back " + row + " " + col);
 
         played_img.pop().hide();
@@ -204,6 +207,7 @@ function back_handler() {
 }
 
 function toggle_player1_handler() {
+    console.info("toggle_player1_handler()");
     if (player_1_auto) {
         $("#player_1").text("manual");
         player_1_auto = false;
@@ -218,6 +222,7 @@ function toggle_player1_handler() {
 }
 
 function toggle_player2_handler() {
+    console.info("toggle_player2_handler()");
     if (player_2_auto) {
         $("#player_2").text("manual");
         player_2_auto = false;
@@ -254,23 +259,42 @@ function check_auto_play() {
 }
 
 function get_neighbors(row, col) {
-    n = [];
-    p = board[row, col]
+    var n = [];
+    var p = board[row][col];
     if (p != 0) {
         // left
-        if (col > 0 && board[row, col - 1] == p)
+        if (col > 0 && board[row][col - 1] == p)
             n.push([row, col - 1])
         // right
-        if (col < BOARD_SIZE - 1 && board[row, col + 1] == p)
+        if (col < BOARD_SIZE - 1 && board[row][col + 1] == p)
             n.push([row, col + 1])
         // up
-        if (row > 0 && board[row - 1, col] == p)
+        if (row > 0 && board[row - 1][col] == p)
             n.push([row - 1, col])
         // down
-        if (row < BOARD_SIZE - 1 && board[row + 1, col] == p)
+        if (row < BOARD_SIZE - 1 && board[row + 1][col] == p)
             n.push([row + 1, col])
     }
     return n;
+}
+
+/*
+TBD MGouin:
+tried = np.zeros((BOARD_SIZE, BOARD_SIZE), dtype=int)
+*/
+
+function find_path_vertical(row, col) {
+    full_path = false;
+    if (!tried[row][col]) {
+        tried[row][col] = 1;
+        if (row == BOARD_SIZE - 1) {
+            return true;
+        }
+        for (var pos of get_neighbors(row, col)) {
+            full_path = find_path_vertical(pos[0], pos[1]) || full_path;
+        }
+    }
+    return full_path;
 }
 
 
@@ -313,7 +337,7 @@ function play(row, col) {
     drop(img, row, col);
     played_img.push(img);
     
-    moves.push(100 * row + col);
+    moves.push([row, col]);
 
     refresh_ui();
 }
