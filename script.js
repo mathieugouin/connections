@@ -6,9 +6,10 @@
 
 var BOARD_SIZE = 11;
 
-var moves = [];
-var played_img = [];
+var moves = [];  // list of position of moves, in order
+var played_img = [];  // list of div images that were played, in order
 
+// list of images chip available to play
 var stone_h = []; // horizontal
 var stone_v = []; // vertical
 
@@ -21,8 +22,6 @@ var player_2_auto = false;
 
 // TBD MGouin: Still not working yet...
 var won = false;
-
-var my_timer = setInterval(check_auto_play, 500);
 
 
 /********************************************************************************
@@ -150,7 +149,11 @@ function init() {
 
     reset_board();
     refresh_ui();
+
+    // TBD periodically check if auto player can play.  Not sure this is best logic...
+    var my_timer = setInterval(check_auto_play, 500);
 }
+
 
 /********************************************************************************
  * Button Handlers                                                              *
