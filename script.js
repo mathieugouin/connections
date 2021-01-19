@@ -69,6 +69,17 @@ function canplay(row, col) {
     return board[row][col] == 0;
 }
 
+function is_board_full() {
+    for (var i = 0; i < BOARD_SIZE; i++) {
+        for (var j = 0; j < BOARD_SIZE; j++) {
+            board[i][j] = getPositionType(i, j);
+            if (board[i][j] == 0) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
 
 /********************************************************************************
  * Initialization                                                               *
@@ -237,6 +248,26 @@ function check_auto_play() {
     if (is_current_player_auto() && moves.length < Math.ceil(BOARD_SIZE * BOARD_SIZE / 2)) {
         auto_play();
     }
+}
+
+function get_neighbors(row, col) {
+    n = [];
+    p = board[row, col]
+    if (p != 0) {
+        // left
+        if (col > 0 && board[row, col - 1] == p)
+            n.push([row, col - 1])
+        // right
+        if (col < BOARD_SIZE - 1 && board[row, col + 1] == p)
+            n.push([row, col + 1])
+        // up
+        if (row > 0 && board[row - 1, col] == p)
+            n.push([row - 1, col])
+        // down
+        if (row < BOARD_SIZE - 1 && board[row + 1, col] == p)
+            n.push([row + 1, col])
+    }
+    return n;
 }
 
 
