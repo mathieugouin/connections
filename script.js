@@ -1,5 +1,9 @@
 // Connections javascript
 
+/********************************************************************************
+ * Globals                                                                      *
+ ********************************************************************************/
+
 var BOARD_SIZE = 11;
 
 var moves = [];
@@ -19,6 +23,31 @@ var player_2_auto = false;
 var won = false;
 
 var my_timer = setInterval(check_auto_play, 500);
+
+
+/********************************************************************************
+ * Utilities                                                                    *
+ ********************************************************************************/
+
+function getRandomInt(max) {
+    return Math.floor(Math.random() * Math.floor(max));
+}
+
+function isOdd(x) {
+    return x % 2 != 0;
+}
+
+function isEven(x) {
+    return !isOdd(x);
+}
+
+function getPositionType(row, col) {
+    if (isOdd(row) && isEven(col))
+        return 1;
+    if (isEven(row) && isOdd(col))
+        return 2;
+    return 0;
+}
 
 function getCurrentPlayerNumber() {
     return 1 + moves.length % 2;
@@ -40,130 +69,10 @@ function canplay(row, col) {
     return board[row][col] == 0;
 }
 
-function play(row, col) {
-    // place the player number (1 or 2) at the position
-    board[row][col] = getCurrentPlayerNumber();
-    var img;
-    if (isEven(row) && isEven(col) && getCurrentPlayerNumber() == 1 ||
-        isOdd(row) && isOdd(col) && getCurrentPlayerNumber() == 2) {
-        // Drop vertical chip
-        img = stone_v[moves.length];
-    } else {
-        // Drop horizontal chip
-        img = stone_h[moves.length];
-    }
-    drop(img, row, col);
-    played_img.push(img);
-    
-    moves.push(100 * row + col);
-    print_solution();
-}
 
-function getRandomInt(max) {
-    return Math.floor(Math.random() * Math.floor(max));
-}
-
-// Crude random auto player
-function auto_play() {
-    var row;
-    var col;
-    do {
-        row = getRandomInt(BOARD_SIZE);
-        col = getRandomInt(BOARD_SIZE);
-    } while (!canplay(row, col))
-    play(row, col);
-}
-
-function check_auto_play() {
-    if (is_current_player_auto() && moves.length < Math.ceil(BOARD_SIZE * BOARD_SIZE / 2)) {
-        auto_play();
-    }
-}
-
-function click_handler(row, col) {
-    return function () {
-        console.info("click on " + row + " " + col);
-        if (!is_current_player_auto()) {
-            if (canplay(row, col)) {
-                play(row, col);
-            } else {
-                console.warn("canot play on " + row + " " + col);
-            }
-        }
-    };
-}
-
-function update_next_player() {
-    if (won) {
-        $("#player_1").removeClass("active").addClass("inactive");
-        $("#player_2").removeClass("active").addClass("inactive");
-    }
-    else if (getCurrentPlayerNumber() == 1) {
-        $("#player_1").removeClass("inactive").addClass("active");
-        $("#player_2").removeClass("active").addClass("inactive");
-    }
-    else {
-        $("#player_1").removeClass("active").addClass("inactive");
-        $("#player_2").removeClass("inactive").addClass("active");
-    }
-}
-
-function drop(img, row, col) {
-    img.css("left", (-1 * 100.0 / BOARD_SIZE) + '%');
-    if (getCurrentPlayerNumber() == 1) {
-        img.css("top",  (-1 * 100.0 / BOARD_SIZE) + '%');
-    } else {
-        img.css("top",  (100.0) + '%');
-    }
-    
-    img.show();
-
-    img.animate(
-        {
-            top:  ((BOARD_SIZE - 1 - row) * 100 / BOARD_SIZE) + '%',
-            left: (col * 100 / BOARD_SIZE) + '%'
-        },
-        400,  // ms
-        "linear"
-    );
-}
-
-function print_solution() {
-    update_next_player();
-    return;
-}
-
-function back_handler() {
-    if (moves.length > 0) {
-        var combinedRowCol = moves.pop();
-        var row = Math.floor(combinedRowCol / 100);
-        var col = combinedRowCol % 100;
-        console.info("back " + row + " " + col);
-
-        played_img.pop().hide();
-
-        board[row][col] = 0;  // mark board as empty
-
-        if (won) {
-            won = false;
-        }
-
-        if (is_current_player_auto()) {
-            console.info("back again for auto player");
-            back_handler();
-        }
-
-        print_solution();
-    }
-}
-
-function getPositionType(row, col) {
-    if (isOdd(row) && isEven(col))
-        return 1;
-    if (isEven(row) && isOdd(col))
-        return 2;
-    return 0;
-}
+/********************************************************************************
+ * Initialization                                                               *
+ ********************************************************************************/
 
 function reset_board() {
     for (var i = 0; i < BOARD_SIZE; i++) {
@@ -171,30 +80,6 @@ function reset_board() {
             board[i][j] = getPositionType(i, j);
         }
     }
-}
-
-// New game button click handler
-function new_handler() {
-    moves = [];
-    played_img = [];
-
-    reset_board();
-
-    won = false;
-    $(".player1h").hide();
-    $(".player1v").hide();
-    $(".player2h").hide();
-    $(".player2v").hide();
-    $(".win").hide();
-    print_solution();
-}
-
-function isOdd(x) {
-    return x % 2 != 0;
-}
-
-function isEven(x) {
-    return !isOdd(x);
 }
 
 // Run only once at page load
@@ -253,11 +138,55 @@ function init() {
     }
 
     reset_board();
-    print_solution();
+    refresh_ui();
 }
+
+/********************************************************************************
+ * Button Handlers                                                              *
+ ********************************************************************************/
 
 function about_handler() {
     $("#about_div").fadeToggle();
+}
+
+// New game button click handler
+function new_handler() {
+    moves = [];
+    played_img = [];
+
+    reset_board();
+
+    won = false;
+    $(".player1h").hide();
+    $(".player1v").hide();
+    $(".player2h").hide();
+    $(".player2v").hide();
+    $(".win").hide();
+    refresh_ui();
+}
+
+function back_handler() {
+    if (moves.length > 0) {
+        var combinedRowCol = moves.pop();
+        var row = Math.floor(combinedRowCol / 100);
+        var col = combinedRowCol % 100;
+        console.info("back " + row + " " + col);
+
+        played_img.pop().hide();
+
+        board[row][col] = 0;  // mark board as empty
+
+        if (won) {
+            won = false;
+        }
+
+        if (is_current_player_auto()) {
+            console.info("back again for auto player");
+            back_handler();
+        }
+
+        refresh_ui();
+    }
 }
 
 function toggle_player1_handler() {
@@ -270,7 +199,7 @@ function toggle_player1_handler() {
         //TBD MGouin: $("#player_2").text("manual");
         player_1_auto = true;
         //TBD MGouin: player_2_auto = false;
-        print_solution();
+        refresh_ui();
     }
 }
 
@@ -284,8 +213,107 @@ function toggle_player2_handler() {
         //TBD MGouin: $("#player_1").text("manual");
         player_2_auto = true;
         //TBD MGouin: player_1_auto = false;
-        print_solution();
+        refresh_ui();
     }
+}
+
+
+/********************************************************************************
+ * Auto Play                                                                    *
+ ********************************************************************************/
+
+// Crude random auto player
+function auto_play() {
+    var row;
+    var col;
+    do {
+        row = getRandomInt(BOARD_SIZE);
+        col = getRandomInt(BOARD_SIZE);
+    } while (!canplay(row, col))
+    play(row, col);
+}
+
+function check_auto_play() {
+    if (is_current_player_auto() && moves.length < Math.ceil(BOARD_SIZE * BOARD_SIZE / 2)) {
+        auto_play();
+    }
+}
+
+
+/********************************************************************************
+ * General Play                                                                 *
+ ********************************************************************************/
+
+function drop(img, row, col) {
+    img.css("left", (-1 * 100.0 / BOARD_SIZE) + '%');
+    if (getCurrentPlayerNumber() == 1) {
+        img.css("top",  (-1 * 100.0 / BOARD_SIZE) + '%');
+    } else {
+        img.css("top",  (100.0) + '%');
+    }
+    
+    img.show();
+
+    img.animate(
+        {
+            top:  ((BOARD_SIZE - 1 - row) * 100 / BOARD_SIZE) + '%',
+            left: (col * 100 / BOARD_SIZE) + '%'
+        },
+        400,  // ms
+        "linear"
+    );
+}
+
+function play(row, col) {
+    // place the player number (1 or 2) at the position
+    board[row][col] = getCurrentPlayerNumber();
+    var img;
+    if (isEven(row) && isEven(col) && getCurrentPlayerNumber() == 1 ||
+        isOdd(row) && isOdd(col) && getCurrentPlayerNumber() == 2) {
+        // Drop vertical chip
+        img = stone_v[moves.length];
+    } else {
+        // Drop horizontal chip
+        img = stone_h[moves.length];
+    }
+    drop(img, row, col);
+    played_img.push(img);
+    
+    moves.push(100 * row + col);
+
+    refresh_ui();
+}
+
+function click_handler(row, col) {
+    return function () {
+        console.info("click on " + row + " " + col);
+        if (!is_current_player_auto()) {
+            if (canplay(row, col)) {
+                play(row, col);
+            } else {
+                console.warn("canot play on " + row + " " + col);
+            }
+        }
+    };
+}
+
+function update_next_player() {
+    if (won) {
+        $("#player_1").removeClass("active").addClass("inactive");
+        $("#player_2").removeClass("active").addClass("inactive");
+    }
+    else if (getCurrentPlayerNumber() == 1) {
+        $("#player_1").removeClass("inactive").addClass("active");
+        $("#player_2").removeClass("active").addClass("inactive");
+    }
+    else {
+        $("#player_1").removeClass("active").addClass("inactive");
+        $("#player_2").removeClass("inactive").addClass("active");
+    }
+}
+
+function refresh_ui() {
+    update_next_player();
 }
 
 $(window).on('load', function(){init();});
