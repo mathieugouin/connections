@@ -98,7 +98,7 @@ function init() {
 
             img.addClass(div_class);
             img.css("left", (j * 100 / BOARD_SIZE) + '%');
-            img.css("top",  ((BOARD_SIZE - 1 - i) * 100 / BOARD_SIZE) + '%');
+            img.css("top",  (i * 100 / BOARD_SIZE) + '%');
             if (positionType == 0) {
                 img.click(click_handler(i, j));
             }
@@ -256,8 +256,8 @@ function drop(img, row, col) {
 
     img.animate(
         {
-            top:  ((BOARD_SIZE - 1 - row) * 100 / BOARD_SIZE) + '%',
-            left: (col * 100 / BOARD_SIZE) + '%'
+            'top' : (row * 100 / BOARD_SIZE) + '%',
+            'left': (col * 100 / BOARD_SIZE) + '%'
         },
         400,  // ms
         "linear"
