@@ -40,6 +40,16 @@ function isEven(x) {
     return !isOdd(x);
 }
 
+function positionToValue(row, col) {
+    return 100 * row + col;
+}
+
+function valueToPosition(v) {
+    var row = Math.floor(v / 100);
+    var col = v % 100;
+    return [row, col];
+}
+
 function getPositionType(row, col) {
     if (isOdd(row) && isEven(col))
         return 1;
@@ -107,8 +117,8 @@ function init() {
             }
 
             img.addClass(div_class);
-            img.css("left", (j * 100 / BOARD_SIZE) + '%');
             img.css("top",  (i * 100 / BOARD_SIZE) + '%');
+            img.css("left", (j * 100 / BOARD_SIZE) + '%');
             if (positionType == 0) {
                 img.click(click_handler(i, j));
             }
@@ -138,8 +148,8 @@ function init() {
         for (var j = 0; j < BOARD_SIZE; j++) {
             var img = $("<div/>");
             img.addClass('win');
+            img.css("top",  (i * 100 / BOARD_SIZE) + '%');
             img.css("left", (j * 100 / BOARD_SIZE) + '%');
-            img.css("top",  ((BOARD_SIZE - 1 - i) * 100 / BOARD_SIZE) + '%');
             img.hide();
             img.appendTo("#board");
 
@@ -195,6 +205,7 @@ function back_handler() {
 
         if (won) {
             won = false;
+            $(".win").hide();
         }
 
         if (is_current_player_auto()) {
@@ -238,6 +249,93 @@ function toggle_player2_handler() {
 
 
 /********************************************************************************
+ * Win logic                                                                    *
+ ********************************************************************************/
+
+// posList in combined value format
+function display_win_mark(posList) {
+    for (var posValue of posList) {
+        var pos = valueToPosition(posValue);
+        win_mark_img[pos[0]][pos[1]].show();
+    }
+}
+
+// TBD ugly almost duplicate
+function check_win_horizontal() {
+    var winnerFound = false;
+    var col = 0;
+    // On the left column, check all row
+    for (var row = 0; row < BOARD_SIZE; row++) {
+        if (board[row][col] != 0) {  // A player played there
+            var posTried = [];  // In combined value for search to work
+            var posToTry = [];  // Idem
+            posToTry.push(positionToValue(row, col));  // Start here
+
+            while (posToTry.length > 0) {
+                var posValue = posToTry.shift();
+                posTried.push(posValue);
+                var pos = valueToPosition(posValue);
+                if (pos[1] == BOARD_SIZE - 1) {  // We reached the right of the board
+                    winnerFound = true;
+                    display_win_mark(posTried);
+                    break;
+                }
+                for (var neighbor of get_neighbors(pos[0], pos[1])) {
+                    var neighborValue = positionToValue(neighbor[0], neighbor[1]);
+                    // Prevent duplicated tries
+                    if (!posTried.includes(neighborValue) &&
+                        !posToTry.includes(neighborValue))
+                    {
+                        posToTry.push(neighborValue);
+                    }
+                }
+            }
+        }
+    }
+    return winnerFound;
+}
+
+// TBD ugly almost duplicate
+function check_win_vertical() {
+    var winnerFound = false;
+    var row = 0;
+    // On the top row, check all column
+    for (var col = 0; col < BOARD_SIZE; col++) {
+        if (board[row][col] != 0) {  // A player played there
+            var posTried = [];  // In combined value for search to work
+            var posToTry = [];  // Idem
+            posToTry.push(positionToValue(row, col));  // Start here
+
+            while (posToTry.length > 0) {
+                var posValue = posToTry.shift();
+                posTried.push(posValue);
+                var pos = valueToPosition(posValue);
+                if (pos[0] == BOARD_SIZE - 1) {  // We reached the bottom of the board
+                    winnerFound = true;
+                    display_win_mark(posTried);
+                    break;
+                }
+                for (var neighbor of get_neighbors(pos[0], pos[1])) {
+                    var neighborValue = positionToValue(neighbor[0], neighbor[1]);
+                    // Prevent duplicated tries
+                    if (!posTried.includes(neighborValue) &&
+                        !posToTry.includes(neighborValue))
+                    {
+                        posToTry.push(neighborValue);
+                    }
+                }
+            }
+        }
+    }
+    return winnerFound;
+}
+
+function check_win() {
+    won = check_win_horizontal() || check_win_vertical();
+}
+
+
+/********************************************************************************
  * Auto Play                                                                    *
  ********************************************************************************/
 
@@ -253,7 +351,7 @@ function auto_play() {
 }
 
 function check_auto_play() {
-    if (is_current_player_auto() && moves.length < Math.ceil(BOARD_SIZE * BOARD_SIZE / 2)) {
+    if (is_current_player_auto() && !is_board_full() && !won) {
         auto_play();
     }
 }
@@ -277,26 +375,6 @@ function get_neighbors(row, col) {
     }
     return n;
 }
-
-/*
-TBD MGouin:
-tried = np.zeros((BOARD_SIZE, BOARD_SIZE), dtype=int)
-*/
-
-function find_path_vertical(row, col) {
-    full_path = false;
-    if (!tried[row][col]) {
-        tried[row][col] = 1;
-        if (row == BOARD_SIZE - 1) {
-            return true;
-        }
-        for (var pos of get_neighbors(row, col)) {
-            full_path = find_path_vertical(pos[0], pos[1]) || full_path;
-        }
-    }
-    return full_path;
-}
-
 
 /********************************************************************************
  * General Play                                                                 *
@@ -339,13 +417,16 @@ function play(row, col) {
     
     moves.push([row, col]);
 
+    // TBD Testing
+    check_win();
+
     refresh_ui();
 }
 
 function click_handler(row, col) {
     return function () {
         console.info("click on " + row + " " + col);
-        if (!is_current_player_auto()) {
+        if (!is_current_player_auto() && !won) {
             if (canplay(row, col)) {
                 play(row, col);
             } else {
