@@ -253,14 +253,18 @@ function toggle_player2_handler() {
  ********************************************************************************/
 
 // posList in combined value format
-function display_win_mark(posList) {
+function displayWinMark(posList) {
     for (var posValue of posList) {
         var pos = valueToPosition(posValue);
         win_mark_img[pos[0]][pos[1]].show();
     }
 }
 
-function check_win_generic(horizontal) {
+/*
+Reference:
+https://www.redblobgames.com/pathfinding/a-star/introduction.html
+*/
+function checkWinGeneric(horizontal) {
     var winnerFound = false;
     var row = 0;
     var col = 0;
@@ -274,31 +278,42 @@ function check_win_generic(horizontal) {
         }
 
         if (board[row][col] != 0) {  // A player already played there
-            var posTried = [];  // In combined value for search to work
-            var posToTry = [];  // Idem
-            posToTry.push(positionToValue(row, col));  // Start here
+            var start = positionToValue(row, col);
+            var posToTry = [];  // In combined value for search to work
+            posToTry.push(start);  // Start here
+
+            var cameFrom = {};  // In combined value for search to work
+            cameFrom[start] = -1; // none
 
             while (posToTry.length > 0) {
-                var posValue = posToTry.shift();
-                posTried.push(posValue);
-                var pos = valueToPosition(posValue);
+                var currentPosValue = posToTry.shift();
+                var currentPos = valueToPosition(currentPosValue);
 
+                // early exit logic
                 if (
-                        pos[1] == BOARD_SIZE - 1 && horizontal ||   // col ([1]) reached the right of the board
-                        pos[0] == BOARD_SIZE - 1 && !horizontal     // row ([0]) reached the bottom of the board
+                        currentPos[1] == BOARD_SIZE - 1 && horizontal ||   // col ([1]) reached the right of the board
+                        currentPos[0] == BOARD_SIZE - 1 && !horizontal     // row ([0]) reached the bottom of the board
                     ) {
                     winnerFound = true;
-                    display_win_mark(posTried);
+
+                    // get the winning path
+                    var path = [];
+                    while (currentPosValue != start) {
+                        path.push(currentPosValue);
+                        currentPosValue = cameFrom[currentPosValue];
+                    }
+                    path.push(start);
+                    displayWinMark(path);
+
                     break;
                 }
 
-                for (var neighbor of get_neighbors(pos[0], pos[1])) {
+                for (var neighbor of get_neighbors(currentPos[0], currentPos[1])) {
                     var neighborValue = positionToValue(neighbor[0], neighbor[1]);
                     // Prevent duplicated tries
-                    if (!posTried.includes(neighborValue) &&
-                        !posToTry.includes(neighborValue))
-                    {
+                    if (!(neighborValue in cameFrom)) {
                         posToTry.push(neighborValue);
+                        cameFrom[neighborValue] = currentPosValue;
                     }
                 }
             }
@@ -307,8 +322,8 @@ function check_win_generic(horizontal) {
     return winnerFound;
 }
 
-function check_win() {
-    won = check_win_generic(true) || check_win_generic(false);
+function checkWin() {
+    won = checkWinGeneric(true) || checkWinGeneric(false);
 }
 
 
@@ -394,8 +409,7 @@ function play(row, col) {
     
     moves.push([row, col]);
 
-    // TBD Testing
-    check_win();
+    checkWin();
 
     refresh_ui();
 }
