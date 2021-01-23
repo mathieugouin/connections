@@ -4,11 +4,12 @@
  * Globals                                                                      *
  ********************************************************************************/
 
-var BOARD_SIZE = 11;
+const BOARD_SIZE = 11;
 
-var moves = [];
-var played_img = [];
+var moves = [];  // list of position of moves, in order
+var played_img = [];  // list of div images that were played, in order
 
+// list of images chip available to play
 var stone_h = []; // horizontal
 var stone_v = []; // vertical
 
@@ -21,8 +22,6 @@ var player_2_auto = false;
 
 // TBD MGouin: Still not working yet...
 var won = false;
-
-var my_timer = setInterval(check_auto_play, 500);
 
 
 /********************************************************************************
@@ -39,6 +38,16 @@ function isOdd(x) {
 
 function isEven(x) {
     return !isOdd(x);
+}
+
+function positionToValue(row, col) {
+    return 100 * row + col;
+}
+
+function valueToPosition(v) {
+    var row = Math.floor(v / 100);
+    var col = v % 100;
+    return [row, col];
 }
 
 function getPositionType(row, col) {
@@ -69,6 +78,17 @@ function canplay(row, col) {
     return board[row][col] == 0;
 }
 
+function is_board_full() {
+    for (var i = 0; i < BOARD_SIZE; i++) {
+        for (var j = 0; j < BOARD_SIZE; j++) {
+            board[i][j] = getPositionType(i, j);
+            if (board[i][j] == 0) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
 
 /********************************************************************************
  * Initialization                                                               *
@@ -97,8 +117,8 @@ function init() {
             }
 
             img.addClass(div_class);
-            img.css("left", (j * 100 / BOARD_SIZE) + '%');
             img.css("top",  (i * 100 / BOARD_SIZE) + '%');
+            img.css("left", (j * 100 / BOARD_SIZE) + '%');
             if (positionType == 0) {
                 img.click(click_handler(i, j));
             }
@@ -128,8 +148,8 @@ function init() {
         for (var j = 0; j < BOARD_SIZE; j++) {
             var img = $("<div/>");
             img.addClass('win');
+            img.css("top",  (i * 100 / BOARD_SIZE) + '%');
             img.css("left", (j * 100 / BOARD_SIZE) + '%');
-            img.css("top",  ((BOARD_SIZE - 1 - i) * 100 / BOARD_SIZE) + '%');
             img.hide();
             img.appendTo("#board");
 
@@ -139,18 +159,24 @@ function init() {
 
     reset_board();
     refresh_ui();
+
+    // TBD periodically check if auto player can play.  Not sure this is best logic...
+    var my_timer = setInterval(check_auto_play, 500);
 }
+
 
 /********************************************************************************
  * Button Handlers                                                              *
  ********************************************************************************/
 
 function about_handler() {
+    console.info("about_handler()");
     $("#about_div").fadeToggle();
 }
 
 // New game button click handler
 function new_handler() {
+    console.info("new_handler()");
     moves = [];
     played_img = [];
 
@@ -166,10 +192,11 @@ function new_handler() {
 }
 
 function back_handler() {
+    console.info("back_handler()");
     if (moves.length > 0) {
         var combinedRowCol = moves.pop();
-        var row = Math.floor(combinedRowCol / 100);
-        var col = combinedRowCol % 100;
+        var row = combinedRowCol[0];
+        var col = combinedRowCol[1];
         console.info("back " + row + " " + col);
 
         played_img.pop().hide();
@@ -178,6 +205,7 @@ function back_handler() {
 
         if (won) {
             won = false;
+            $(".win").hide();
         }
 
         if (is_current_player_auto()) {
@@ -190,6 +218,7 @@ function back_handler() {
 }
 
 function toggle_player1_handler() {
+    console.info("toggle_player1_handler()");
     if (player_1_auto) {
         $("#player_1").text("manual");
         player_1_auto = false;
@@ -204,6 +233,7 @@ function toggle_player1_handler() {
 }
 
 function toggle_player2_handler() {
+    console.info("toggle_player2_handler()");
     if (player_2_auto) {
         $("#player_2").text("manual");
         player_2_auto = false;
@@ -215,6 +245,85 @@ function toggle_player2_handler() {
         //TBD MGouin: player_1_auto = false;
         refresh_ui();
     }
+}
+
+
+/********************************************************************************
+ * Win logic                                                                    *
+ ********************************************************************************/
+
+// posList in combined value format
+function displayWinMark(posList) {
+    for (var posValue of posList) {
+        var pos = valueToPosition(posValue);
+        win_mark_img[pos[0]][pos[1]].show();
+    }
+}
+
+/*
+Reference:
+https://www.redblobgames.com/pathfinding/a-star/introduction.html
+*/
+function checkWinGeneric(horizontal) {
+    var winnerFound = false;
+    var row = 0;
+    var col = 0;
+    for (var i = 0; i < BOARD_SIZE; i++) {
+        if (horizontal) {
+            // On the left column, check all row
+            row = i;
+        } else {
+            // On the top row, check all column
+            col = i;
+        }
+
+        if (board[row][col] != 0) {  // A player already played there
+            var start = positionToValue(row, col);
+            var posToTry = [];  // In combined value for search to work
+            posToTry.push(start);  // Start here
+
+            var cameFrom = {};  // In combined value for search to work
+            cameFrom[start] = -1; // none
+
+            while (posToTry.length > 0) {
+                var currentPosValue = posToTry.shift();
+                var currentPos = valueToPosition(currentPosValue);
+
+                // early exit logic
+                if (
+                        currentPos[1] == BOARD_SIZE - 1 && horizontal ||   // col ([1]) reached the right of the board
+                        currentPos[0] == BOARD_SIZE - 1 && !horizontal     // row ([0]) reached the bottom of the board
+                    ) {
+                    winnerFound = true;
+
+                    // get the winning path
+                    var path = [];
+                    while (currentPosValue != start) {
+                        path.push(currentPosValue);
+                        currentPosValue = cameFrom[currentPosValue];
+                    }
+                    path.push(start);
+                    displayWinMark(path);
+
+                    break;
+                }
+
+                for (var neighbor of get_neighbors(currentPos[0], currentPos[1])) {
+                    var neighborValue = positionToValue(neighbor[0], neighbor[1]);
+                    // Prevent duplicated tries
+                    if (!(neighborValue in cameFrom)) {
+                        posToTry.push(neighborValue);
+                        cameFrom[neighborValue] = currentPosValue;
+                    }
+                }
+            }
+        }
+    }
+    return winnerFound;
+}
+
+function checkWin() {
+    won = checkWinGeneric(true) || checkWinGeneric(false);
 }
 
 
@@ -234,11 +343,30 @@ function auto_play() {
 }
 
 function check_auto_play() {
-    if (is_current_player_auto() && moves.length < Math.ceil(BOARD_SIZE * BOARD_SIZE / 2)) {
+    if (is_current_player_auto() && !is_board_full() && !won) {
         auto_play();
     }
 }
 
+function get_neighbors(row, col) {
+    var n = [];
+    var p = board[row][col];
+    if (p != 0) {
+        // left
+        if (col > 0 && board[row][col - 1] == p)
+            n.push([row, col - 1])
+        // right
+        if (col < BOARD_SIZE - 1 && board[row][col + 1] == p)
+            n.push([row, col + 1])
+        // up
+        if (row > 0 && board[row - 1][col] == p)
+            n.push([row - 1, col])
+        // down
+        if (row < BOARD_SIZE - 1 && board[row + 1][col] == p)
+            n.push([row + 1, col])
+    }
+    return n;
+}
 
 /********************************************************************************
  * General Play                                                                 *
@@ -279,7 +407,9 @@ function play(row, col) {
     drop(img, row, col);
     played_img.push(img);
     
-    moves.push(100 * row + col);
+    moves.push([row, col]);
+
+    checkWin();
 
     refresh_ui();
 }
@@ -287,7 +417,7 @@ function play(row, col) {
 function click_handler(row, col) {
     return function () {
         console.info("click on " + row + " " + col);
-        if (!is_current_player_auto()) {
+        if (!is_current_player_auto() && !won) {
             if (canplay(row, col)) {
                 play(row, col);
             } else {
