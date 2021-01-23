@@ -260,48 +260,20 @@ function display_win_mark(posList) {
     }
 }
 
-// TBD ugly almost duplicate
-function check_win_horizontal() {
-    var winnerFound = false;
-    var col = 0;
-    // On the left column, check all row
-    for (var row = 0; row < BOARD_SIZE; row++) {
-        if (board[row][col] != 0) {  // A player played there
-            var posTried = [];  // In combined value for search to work
-            var posToTry = [];  // Idem
-            posToTry.push(positionToValue(row, col));  // Start here
-
-            while (posToTry.length > 0) {
-                var posValue = posToTry.shift();
-                posTried.push(posValue);
-                var pos = valueToPosition(posValue);
-                if (pos[1] == BOARD_SIZE - 1) {  // We reached the right of the board
-                    winnerFound = true;
-                    display_win_mark(posTried);
-                    break;
-                }
-                for (var neighbor of get_neighbors(pos[0], pos[1])) {
-                    var neighborValue = positionToValue(neighbor[0], neighbor[1]);
-                    // Prevent duplicated tries
-                    if (!posTried.includes(neighborValue) &&
-                        !posToTry.includes(neighborValue))
-                    {
-                        posToTry.push(neighborValue);
-                    }
-                }
-            }
-        }
-    }
-    return winnerFound;
-}
-
-// TBD ugly almost duplicate
-function check_win_vertical() {
+function check_win_generic(horizontal) {
     var winnerFound = false;
     var row = 0;
-    // On the top row, check all column
-    for (var col = 0; col < BOARD_SIZE; col++) {
-        if (board[row][col] != 0) {  // A player played there
+    var col = 0;
+    for (var i = 0; i < BOARD_SIZE; i++) {
+        if (horizontal) {
+            // On the left column, check all row
+            row = i;
+        } else {
+            // On the top row, check all column
+            col = i;
+        }
+
+        if (board[row][col] != 0) {  // A player already played there
             var posTried = [];  // In combined value for search to work
             var posToTry = [];  // Idem
             posToTry.push(positionToValue(row, col));  // Start here
@@ -310,11 +282,16 @@ function check_win_vertical() {
                 var posValue = posToTry.shift();
                 posTried.push(posValue);
                 var pos = valueToPosition(posValue);
-                if (pos[0] == BOARD_SIZE - 1) {  // We reached the bottom of the board
+
+                if (
+                        pos[1] == BOARD_SIZE - 1 && horizontal ||   // col ([1]) reached the right of the board
+                        pos[0] == BOARD_SIZE - 1 && !horizontal     // row ([0]) reached the bottom of the board
+                    ) {
                     winnerFound = true;
                     display_win_mark(posTried);
                     break;
                 }
+
                 for (var neighbor of get_neighbors(pos[0], pos[1])) {
                     var neighborValue = positionToValue(neighbor[0], neighbor[1]);
                     // Prevent duplicated tries
@@ -331,7 +308,7 @@ function check_win_vertical() {
 }
 
 function check_win() {
-    won = check_win_horizontal() || check_win_vertical();
+    won = check_win_generic(true) || check_win_generic(false);
 }
 
 
