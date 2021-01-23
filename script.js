@@ -375,9 +375,9 @@ function get_neighbors(row, col) {
 function drop(img, row, col) {
     img.css("left", (-1 * 100.0 / BOARD_SIZE) + '%');
     if (getCurrentPlayerNumber() == 1) {
-        img.css("top",  (-1 * 100.0 / BOARD_SIZE) + '%');
+        img.css("top",  '0%');
     } else {
-        img.css("top",  (100.0) + '%');
+        img.css("top",  ((BOARD_SIZE - 1) * 100.0 / BOARD_SIZE) + '%');
     }
     
     img.show();
