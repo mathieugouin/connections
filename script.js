@@ -81,7 +81,6 @@ function canplay(row, col) {
 function is_board_full() {
     for (var i = 0; i < BOARD_SIZE; i++) {
         for (var j = 0; j < BOARD_SIZE; j++) {
-            board[i][j] = getPositionType(i, j);
             if (board[i][j] == 0) {
                 return false;
             }
