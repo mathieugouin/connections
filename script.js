@@ -268,7 +268,7 @@ function checkWinGeneric(horizontal) {
     var winnerFound = false;
     var row = 0;
     var col = 0;
-    for (var i = 0; i < BOARD_SIZE; i++) {
+    for (var i = 0; i < BOARD_SIZE && !winnerFound; i++) {
         if (horizontal) {
             // On the left column, check all row
             row = i;
@@ -297,12 +297,23 @@ function checkWinGeneric(horizontal) {
                     winnerFound = true;
 
                     // get the winning path
+                    var earlyExit = false;
                     var path = [];
                     while (currentPosValue != start) {
                         path.push(currentPosValue);
+                        currentPos = valueToPosition(currentPosValue);
+                        if (
+                                currentPos[1] == 0 && horizontal ||   // col ([1]) reached the left of the board
+                                currentPos[0] == 0 && !horizontal     // row ([0]) reached the top of the board
+                            ) {
+                            earlyExit = true;
+                            break;
+                        }
                         currentPosValue = cameFrom[currentPosValue];
                     }
-                    path.push(start);
+                    if (!earlyExit) {
+                        path.push(start);
+                    }
                     displayWinMark(path);
 
                     break;
