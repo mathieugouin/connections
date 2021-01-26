@@ -263,7 +263,7 @@ function displayWinMark(posList) {
 Reference:
 https://www.redblobgames.com/pathfinding/a-star/introduction.html
 */
-function checkWinGeneric(horizontal) {
+function checkWinGenericEndToEnd(horizontal) {
     var winnerFound = false;
     var row = 0;
     var col = 0;
@@ -296,22 +296,18 @@ function checkWinGeneric(horizontal) {
                     winnerFound = true;
 
                     // get the winning path
-                    var earlyExit = false;
                     var path = [];
-                    while (currentPosValue != start) {
-                        path.push(currentPosValue);
-                        currentPos = valueToPosition(currentPosValue);
+                    var pathPosValue = currentPosValue;
+                    while (pathPosValue != -1) {
+                        path.push(pathPosValue);
+                        var pathPos = valueToPosition(pathPosValue);
                         if (
-                                currentPos[1] == 0 && horizontal ||   // col ([1]) reached the left of the board
-                                currentPos[0] == 0 && !horizontal     // row ([0]) reached the top of the board
+                                pathPos[1] == 0 && horizontal ||   // col ([1]) reached the left of the board
+                                pathPos[0] == 0 && !horizontal     // row ([0]) reached the top of the board
                             ) {
-                            earlyExit = true;
                             break;
                         }
-                        currentPosValue = cameFrom[currentPosValue];
-                    }
-                    if (!earlyExit) {
-                        path.push(start);
+                        pathPosValue = cameFrom[pathPosValue];
                     }
                     displayWinMark(path);
 
@@ -332,8 +328,76 @@ function checkWinGeneric(horizontal) {
     return winnerFound;
 }
 
+function checkWinLoop() {
+    var winnerFound = false;
+
+    var positionTried = new Array(BOARD_SIZE).fill(0).map(() => new Array(BOARD_SIZE).fill(0));
+
+    // We need to scan the whole board
+    for (var i = 0; i < BOARD_SIZE && !winnerFound; i++) {
+        for (var j = 0; j < BOARD_SIZE && !winnerFound; j++) {
+
+            // A player played there and we never tried this position
+            if (board[i][j] != 0 && positionTried[i][j] == 0) {
+                var start = positionToValue(i, j);
+                var posToTry = [];  // In combined value for search to work
+                posToTry.push(start);  // Start here
+                positionTried[i][j] = 1;
+
+                var cameFrom = {};  // In combined value for search to work
+                cameFrom[start] = -1; // none
+
+                while (posToTry.length > 0 && !winnerFound) {
+                    var currentPosValue = posToTry.shift();
+                    var currentPos = valueToPosition(currentPosValue);
+
+                    for (var neighbor of get_neighbors(currentPos[0], currentPos[1])) {
+                        var neighborValue = positionToValue(neighbor[0], neighbor[1]);
+                        // Prevent duplicated tries
+                        if (!(neighborValue in cameFrom)) {
+                            posToTry.push(neighborValue);
+                            positionTried[neighbor[0]][neighbor[1]] = 1;
+                            cameFrom[neighborValue] = currentPosValue;
+                        } else if (neighborValue != cameFrom[currentPosValue]) {
+                            winnerFound = true;
+
+                            // get the winning paths
+                            var path = [];
+                            var pathPosValue = currentPosValue;
+                            while (pathPosValue != -1) {
+                                path.push(pathPosValue);
+                                pathPosValue = cameFrom[pathPosValue];
+                            }
+
+                            pathPosValue = neighborValue;
+                            while (pathPosValue != -1) {
+                                if (!path.includes(pathPosValue)) {
+                                    path.unshift(pathPosValue);  // add at the start
+                                } else {
+                                    var lastElement = path.indexOf(pathPosValue);
+                                    if (lastElement >= 0) {
+                                        path = path.slice(0, lastElement + 1);
+                                    }
+                                    break;
+                                }
+                                pathPosValue = cameFrom[pathPosValue];
+                            }
+
+                            displayWinMark(path);
+
+                            break;
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+    return winnerFound;
+}
+
 function checkWin() {
-    won = checkWinGeneric(true) || checkWinGeneric(false);
+    won = checkWinGenericEndToEnd(true) || checkWinGenericEndToEnd(false) || checkWinLoop();
 }
 
 
