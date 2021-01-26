@@ -296,22 +296,18 @@ function checkWinGenericEndToEnd(horizontal) {
                     winnerFound = true;
 
                     // get the winning path
-                    var earlyExit = false;
                     var path = [];
-                    while (currentPosValue != start) {
-                        path.push(currentPosValue);
-                        currentPos = valueToPosition(currentPosValue);
+                    var pathPosValue = currentPosValue;
+                    while (pathPosValue != -1) {
+                        path.push(pathPosValue);
+                        var pathPos = valueToPosition(pathPosValue);
                         if (
-                                currentPos[1] == 0 && horizontal ||   // col ([1]) reached the left of the board
-                                currentPos[0] == 0 && !horizontal     // row ([0]) reached the top of the board
+                                pathPos[1] == 0 && horizontal ||   // col ([1]) reached the left of the board
+                                pathPos[0] == 0 && !horizontal     // row ([0]) reached the top of the board
                             ) {
-                            earlyExit = true;
                             break;
                         }
-                        currentPosValue = cameFrom[currentPosValue];
-                    }
-                    if (!earlyExit) {
-                        path.push(start);
+                        pathPosValue = cameFrom[pathPosValue];
                     }
                     displayWinMark(path);
 
@@ -365,32 +361,29 @@ function checkWinLoop() {
                         } else if (neighborValue != cameFrom[currentPosValue]) {
                             winnerFound = true;
 
-                            // TBD refactor?
-                            // TBD create path from here
-                            // start from both:
-                            // - currentPosValue
-                            // - neighborValue
-                            {
-                                // get the winning path
-                                var path = [];
-                                while (currentPosValue != -1) {
-                                    path.push(currentPosValue);
-                                    currentPos = valueToPosition(currentPosValue);
-                                    currentPosValue = cameFrom[currentPosValue];
-                                }
-                                displayWinMark(path);
+                            // get the winning paths
+                            var path = [];
+                            var pathPosValue = currentPosValue;
+                            while (pathPosValue != -1) {
+                                path.push(pathPosValue);
+                                pathPosValue = cameFrom[pathPosValue];
                             }
-                            currentPosValue = neighborValue;
-                            {
-                                // get the winning path
-                                var path = [];
-                                while (currentPosValue != -1) {
-                                    path.push(currentPosValue);
-                                    currentPos = valueToPosition(currentPosValue);
-                                    currentPosValue = cameFrom[currentPosValue];
+
+                            pathPosValue = neighborValue;
+                            while (pathPosValue != -1) {
+                                if (!path.includes(pathPosValue)) {
+                                    path.unshift(pathPosValue);  // add at the start
+                                } else {
+                                    var lastElement = path.indexOf(pathPosValue);
+                                    if (lastElement >= 0) {
+                                        path = path.slice(0, lastElement + 1);
+                                    }
+                                    break;
                                 }
-                                displayWinMark(path);
+                                pathPosValue = cameFrom[pathPosValue];
                             }
+
+                            displayWinMark(path);
 
                             break;
                         }
