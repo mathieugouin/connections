@@ -1,5 +1,7 @@
 // Connections javascript
 
+// TBD harmonize naming style (camelCase)
+
 /********************************************************************************
  * Globals                                                                      *
  ********************************************************************************/
@@ -17,10 +19,10 @@ var board = new Array(BOARD_SIZE).fill(0).map(() => new Array(BOARD_SIZE).fill(0
 
 var win_mark_img = new Array(BOARD_SIZE).fill(0).map(() => new Array(BOARD_SIZE).fill(0));
 
+// TBD change to dict
 var player_1_auto = false;
 var player_2_auto = false;
 
-// TBD MGouin: Still not working yet...
 var won = false;
 
 
@@ -52,14 +54,22 @@ function valueToPosition(v) {
 
 function getPositionType(row, col) {
     if (isOdd(row) && isEven(col))
-        return 1;
+        return 1; // Player 1 pin
     if (isEven(row) && isOdd(col))
-        return 2;
-    return 0;
+        return 2; // Player 2 pin
+    return 0; // Empty position
 }
 
+// Player currently playing
+// 1 or 2
 function getCurrentPlayerNumber() {
     return 1 + moves.length % 2;
+}
+
+// Player not currently playing
+// 1 or 2
+function getOppositePlayerNumber() {
+    return 3 - getCurrentPlayerNumber();
 }
 
 function is_current_player_auto() {
@@ -87,6 +97,12 @@ function is_board_full() {
         }
     }
     return true;
+}
+
+function distanceBetweenTwoPositions(row1, col1, row2, col2) {
+    var drow = row2 - row1;
+    var dcol = col2 - col1;
+    return Math.sqrt((drow ** 2) + (dcol ** 2));
 }
 
 /********************************************************************************
@@ -251,6 +267,26 @@ function toggle_player2_handler() {
  * Win logic                                                                    *
  ********************************************************************************/
 
+function get_neighbors(row, col) {
+    var n = [];
+    var p = board[row][col];
+    if (p != 0) {
+        // left
+        if (col > 0 && board[row][col - 1] == p)
+            n.push([row, col - 1])
+        // right
+        if (col < BOARD_SIZE - 1 && board[row][col + 1] == p)
+            n.push([row, col + 1])
+        // up
+        if (row > 0 && board[row - 1][col] == p)
+            n.push([row - 1, col])
+        // down
+        if (row < BOARD_SIZE - 1 && board[row + 1][col] == p)
+            n.push([row + 1, col])
+    }
+    return n;
+}
+
 // posList in combined value format
 function displayWinMark(posList) {
     for (var posValue of posList) {
@@ -397,6 +433,7 @@ function checkWinLoop() {
 }
 
 function checkWin() {
+    //                       horizontal                         vertical
     won = checkWinGenericEndToEnd(true) || checkWinGenericEndToEnd(false) || checkWinLoop();
 }
 
@@ -420,26 +457,6 @@ function check_auto_play() {
     if (is_current_player_auto() && !is_board_full() && !won) {
         auto_play();
     }
-}
-
-function get_neighbors(row, col) {
-    var n = [];
-    var p = board[row][col];
-    if (p != 0) {
-        // left
-        if (col > 0 && board[row][col - 1] == p)
-            n.push([row, col - 1])
-        // right
-        if (col < BOARD_SIZE - 1 && board[row][col + 1] == p)
-            n.push([row, col + 1])
-        // up
-        if (row > 0 && board[row - 1][col] == p)
-            n.push([row - 1, col])
-        // down
-        if (row < BOARD_SIZE - 1 && board[row + 1][col] == p)
-            n.push([row + 1, col])
-    }
-    return n;
 }
 
 /********************************************************************************
